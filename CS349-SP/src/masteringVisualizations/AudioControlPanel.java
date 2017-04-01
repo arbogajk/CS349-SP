@@ -1,6 +1,7 @@
 package masteringVisualizations;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +12,8 @@ import java.io.InputStream;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.Control;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
@@ -20,8 +23,15 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JSlider;
+import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import auditory.sampled.AddOp;
 import auditory.sampled.BoomBox;
 import auditory.sampled.BufferedSound;
 import auditory.sampled.BufferedSoundFactory;
@@ -30,22 +40,32 @@ import auditory.sampled.FIRFilterOp;
 import io.ResourceFinder;
 import visual.statik.sampled.ImageFactory;
 
-public class AudioControlPanel extends JPanel implements ActionListener{
+public class AudioControlPanel extends JPanel implements ActionListener,ChangeListener{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private ResourceFinder finder;
-	private Color jmuPurple;
+	private Color jmuPurple,jmuGold;
+	
 	private JButton playbutton,pausebutton,stopbutton;
 	private JComboBox files;
 	private int position=0;
 	private boolean isPlaying = false;
 	private Clip clip; 
+	private JSlider volumeSlider;
+	private JProgressBar volume;
+	private int currentAudioLevel = 0;
+	private FloatControl gainControl;
+	
+	private Font font;
 	
 	public AudioControlPanel(){
 		super();
 		setLayout(null);
+		setBounds(0, 520, 500, 180);
+		
+		font = new Font("Fantasy",Font.BOLD,16);
 		
     	finder = ResourceFinder.createInstance(this);
     	ImageFactory imgFactory = new ImageFactory(finder);
@@ -58,32 +78,54 @@ public class AudioControlPanel extends JPanel implements ActionListener{
     	
     	jmuPurple = new Color(69,0,132);
     	this.setBackground(jmuPurple);
+    	jmuGold = new Color(203,182,119);
     	
-    	this.setBounds(0, 550, 500, 150);
+    	
     	files = buildDropDown();
-    	files.setBounds((int)(this.getBounds().getWidth()/2)-((int)files.getBounds().getWidth()/2), 5, 200, 100);
+    	files.setBounds(190, 5, 200, 100);
     	
     	playbutton = new JButton(play);
-    	playbutton.setBounds(70,(int)files.getBounds().getMaxY() - 20,60,60);
+    	playbutton.setBounds(5,(int)files.getBounds().getMaxY() - 20,60,60);
     	
     	playbutton.addActionListener(this);
     	
     	pausebutton = new JButton(pause);
-    	pausebutton.setBounds(135,(int)files.getBounds().getMaxY() - 20,60,60);
+    	pausebutton.setBounds(65,(int)files.getBounds().getMaxY() - 20,60,60);
     	pausebutton.addActionListener(this);
     	playbutton.setBackground(jmuPurple);
     	
     	stopbutton = new JButton(stop);
-    	stopbutton.setBounds(200,(int)files.getBounds().getMaxY() - 20,60,60);
+    	stopbutton.setBounds(125,(int)files.getBounds().getMaxY() - 20,60,60);
     	stopbutton.addActionListener(this);
+    	
+    	volumeSlider = new JSlider(JSlider.VERTICAL,0,6,3);
+    	volumeSlider.setMajorTickSpacing(1);
+    	volumeSlider.setSnapToTicks(true);
+    	volumeSlider.setPaintTicks(true);
+    	volumeSlider.setPaintLabels(true);
+    	
+    	volumeSlider.setFont(font);
+    	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
+    	JLabel volumeLabel = new JLabel("Volume");
+    	
+    	volumeSlider.setBounds(390, 5, 100, 150);
+    	volumeSlider.addChangeListener(this);
+    	volumeLabel.setBounds(410,150,70,30);
+    	
+    	volume = new JProgressBar(JProgressBar.VERTICAL,0,1);
+    	volume.setValue(0);
+    	volume.setBounds(375, 5, 200, 140);
+ 
     	try {
 			clip = AudioSystem.getClip();
 		} catch (LineUnavailableException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
+    	add(volumeSlider);
+    	add(volumeLabel);
     	add(files);
+    	add(volume);
     	add(playbutton);
     	add(pausebutton);
     	add(stopbutton);
@@ -102,7 +144,10 @@ public class AudioControlPanel extends JPanel implements ActionListener{
 		try {
 			AudioInputStream ais = AudioSystem.getAudioInputStream(bis);
 			BufferedSoundFactory factory = new BufferedSoundFactory(finder);
-			//BufferedSound sound = factory.createBufferedSound(ais);
+			
+			
+		
+			
 			if(!clip.isActive())
 				clip = AudioSystem.getClip();
 			
@@ -111,7 +156,14 @@ public class AudioControlPanel extends JPanel implements ActionListener{
 			{
 				clip.open(ais);
 				clip.setFramePosition(position);
+				gainControl = 
+					    (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 				clip.start();
+				currentAudioLevel = 3;
+				gainControl.setValue((float)currentAudioLevel);
+				updateLevel();
+					
+			
 
 			}
 			else if(e.getSource().equals(pausebutton))
@@ -151,6 +203,31 @@ public class AudioControlPanel extends JPanel implements ActionListener{
 		JComboBox fileSelect = new JComboBox(audioFiles);
 		fileSelect.addActionListener(this);
 		return fileSelect;
+		
+	}
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		
+		
+	
+			currentAudioLevel = (int)gainControl.getValue();
+			gainControl.setValue(volumeSlider.getValue()); // Reduce volume by 10 decibels.
+			updateLevel();
+			clip.start();
+		
+		if(currentAudioLevel == 0)
+		{
+			FloatControl mute = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
+			mute.setValue(-50.0f);
+		}
+		
+		System.out.println(gainControl.getValue());
+		
+	}
+	public void updateLevel(){
+		
+			volume.setValue((int)Math.abs(gainControl.getValue()));
+			volume.updateUI();
 		
 	}
 }
