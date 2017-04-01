@@ -2,9 +2,14 @@ package masteringVisualizations;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -12,6 +17,9 @@ import javax.swing.JSlider;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import io.ResourceFinder;
+import visual.statik.sampled.ImageFactory;
 
 public class EQControlPanel extends JPanel implements ChangeListener, ActionListener
 {
@@ -24,8 +32,20 @@ public class EQControlPanel extends JPanel implements ChangeListener, ActionList
 	private Color jmuPurple,jmuGold;
 	private Font title = new Font("Arial",Font.BOLD,18);
 	private JButton lpfButton,hpfButton;
+	private ResourceFinder finder;
+	
+	
 	public EQControlPanel(){
 		super();
+		
+		finder = ResourceFinder.createInstance(this);
+    	ImageFactory imgFactory = new ImageFactory(finder);
+    	Image eqIcon= imgFactory.createBufferedImage("../img/eqText.png", 2);
+    	
+    	Icon eqImg = new ImageIcon(eqIcon.getScaledInstance(100,70, 0));
+		
+		
+		
 		jmuPurple = new Color(69,0,132);
 	 	jmuGold = new Color(203,182,119);
     	setBackground(jmuGold);
@@ -36,10 +56,8 @@ public class EQControlPanel extends JPanel implements ChangeListener, ActionList
 		sliderPanel.setLayout(null);
 		sliderPanel.setBounds(20,20,460,235);
    
-    	JLabel panelTitle = new JLabel("EQ");
-    	panelTitle.setFont(title);
-    	panelTitle.setForeground(jmuPurple);
-    	panelTitle.setBounds(250,10,100,50);
+    	JLabel panelTitle = new JLabel(eqImg);
+    	panelTitle.setBounds(((int)sliderPanel.getBounds().getCenterX()) - 75,10,110,80);
     	
 		s250 = new JSlider(JSlider.VERTICAL,-12,12,0);
 		s250.setMajorTickSpacing(3);

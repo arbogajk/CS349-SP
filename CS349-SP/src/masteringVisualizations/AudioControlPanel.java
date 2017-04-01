@@ -82,7 +82,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	
     	
     	files = buildDropDown();
-    	files.setBounds(190, 5, 200, 100);
+    	files.setBounds(190, 60, 200, 20);
     	
     	playbutton = new JButton(play);
     	playbutton.setBounds(5,(int)files.getBounds().getMaxY() - 20,60,60);
