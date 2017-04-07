@@ -6,8 +6,15 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.util.Iterator;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -18,8 +25,12 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.jtransforms.fft.DoubleFFT_1D;
+
+import auditory.sampled.BufferedSound;
 import io.ResourceFinder;
 import visual.statik.sampled.ImageFactory;
+
 
 public class EQControlPanel extends JPanel implements ChangeListener, ActionListener
 {
@@ -43,7 +54,7 @@ public class EQControlPanel extends JPanel implements ChangeListener, ActionList
     	Image eqIcon= imgFactory.createBufferedImage("../img/eqText.png", 2);
     	
     	Icon eqImg = new ImageIcon(eqIcon.getScaledInstance(100,70, 0));
-		
+	
 		
 		
 		jmuPurple = new Color(69,0,132);
@@ -97,7 +108,8 @@ public class EQControlPanel extends JPanel implements ChangeListener, ActionList
 		
 		lpfButton = new JButton("LPF");
 		hpfButton = new JButton("HPF");
-		
+		lpfButton.addActionListener(this);
+		hpfButton.addActionListener(this);
 		lpfButton.setBounds(350,20,100,30);
 		hpfButton.setBounds(350,80,100,30);
 		
@@ -118,19 +130,27 @@ public class EQControlPanel extends JPanel implements ChangeListener, ActionList
 	
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 
 
-
-
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		
+		Iterator<double[]> it = AudioControlPanel.getBufferedSound().getSignals();
+	
+		if(e.getActionCommand().equals("LPF"))
+		{
+			while(it.hasNext()){
+				
+			}
+			  
+		}
+		else if(e.getActionCommand().equals("HPF"))
+		{
+			
+		}
 	}
 
 }

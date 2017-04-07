@@ -52,12 +52,12 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private JComboBox files;
 	private int position=0;
 	private boolean isPlaying = false;
-	private Clip clip; 
+	public static Clip clip; 
 	private JSlider volumeSlider;
 	private JProgressBar volume;
 	private int currentAudioLevel = 0;
 	private FloatControl gainControl;
-	
+	public static BufferedSound copySound;
 	private Font font;
 	
 	public AudioControlPanel(){
@@ -138,20 +138,19 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		if(clip.isActive() && e.getSource().equals(files))
 			clip.stop();
 		InputStream is = finder.findInputStream("../audio_src/" + audioFile);
+	
 		BufferedInputStream bis = new BufferedInputStream(is);
 		
 		
 		try {
 			AudioInputStream ais = AudioSystem.getAudioInputStream(bis);
+			
 			BufferedSoundFactory factory = new BufferedSoundFactory(finder);
-			
-			
-		
+			copySound = factory.createBufferedSound(ais);
 			
 			if(!clip.isActive())
 				clip = AudioSystem.getClip();
-			
-			
+
 			if(e.getSource().equals(playbutton))
 			{
 				clip.open(ais);
@@ -162,9 +161,6 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 				currentAudioLevel = 3;
 				gainControl.setValue((float)currentAudioLevel);
 				updateLevel();
-					
-			
-
 			}
 			else if(e.getSource().equals(pausebutton))
 			{
@@ -229,5 +225,12 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			volume.setValue((int)Math.abs(gainControl.getValue()));
 			volume.updateUI();
 		
+	}
+	public static Clip getClip(){
+		return clip;
+	}
+	public static BufferedSound getBufferedSound(){
+		
+		return copySound;
 	}
 }
