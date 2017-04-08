@@ -63,9 +63,9 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	public AudioControlPanel(){
 		super();
 		setLayout(null);
-		setBounds(0, 520, 500, 180);
+		setBounds(0, 520, 800, 250);
 		
-		font = new Font("Fantasy",Font.BOLD,16);
+		font = new Font("Times New Roman",Font.BOLD,16);
 		
     	finder = ResourceFinder.createInstance(this);
     	ImageFactory imgFactory = new ImageFactory(finder);
@@ -82,7 +82,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	
     	
     	files = buildDropDown();
-    	files.setBounds(190, 60, 200, 20);
+    	files.setBounds(210, 75, 200, 20);
     	
     	playbutton = new JButton(play);
     	playbutton.setBounds(5,(int)files.getBounds().getMaxY() - 20,60,60);
@@ -103,18 +103,19 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	volumeSlider.setSnapToTicks(true);
     	volumeSlider.setPaintTicks(true);
     	volumeSlider.setPaintLabels(true);
-    	
     	volumeSlider.setFont(font);
     	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
-    	JLabel volumeLabel = new JLabel("Volume");
+    	volumeSlider.setBackground(jmuPurple);
     	
-    	volumeSlider.setBounds(390, 5, 100, 150);
+    	JLabel volumeLabel = new JLabel("Volume");
+    	volumeLabel.setFont(font);
+    	volumeSlider.setBounds(425, 20, 100, 150);
     	volumeSlider.addChangeListener(this);
-    	volumeLabel.setBounds(410,150,70,30);
+    	volumeLabel.setBounds(450,170,70,30);
     	
     	volume = new JProgressBar(JProgressBar.VERTICAL,0,1);
     	volume.setValue(0);
-    	volume.setBounds(375, 5, 200, 140);
+    	volume.setBounds(550, 20, 40, 150);
  
     	try {
 			clip = AudioSystem.getClip();

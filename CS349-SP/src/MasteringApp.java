@@ -56,7 +56,9 @@ public class      MasteringApp
     public void init()
     {
     	contentPane = (JPanel)rootPaneContainer.getContentPane();
+    	contentPane.setLayout(null);
     	AudioControlPanel audioControls = new AudioControlPanel();
+    	audioControls.setBounds(0,600,600,200);
     	EQControlPanel eqPanel = new EQControlPanel();
     	contentPane.add(audioControls);
     	contentPane.add(eqPanel);

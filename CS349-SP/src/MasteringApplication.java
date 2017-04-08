@@ -16,7 +16,7 @@ public class   MasteringApplication
     public static void main(String[] args) throws Exception
     {
        SwingUtilities.invokeAndWait(
-          new MasteringApplication(args, 500, 700));
+          new MasteringApplication(args, 600, 800));
     }
 	
     /**

@@ -48,27 +48,30 @@ public class EQControlPanel extends JPanel implements ChangeListener, ActionList
 	
 	public EQControlPanel(){
 		super();
+	
+		jmuPurple = new Color(69,0,132);
+	 	jmuGold = new Color(203,182,119);
+    	
+		setBackground(jmuGold);
+		setLayout(null);
+		setBounds(0,300,600,300);
+		setBorder(new LineBorder(jmuPurple,5));
 		
 		finder = ResourceFinder.createInstance(this);
     	ImageFactory imgFactory = new ImageFactory(finder);
     	Image eqIcon= imgFactory.createBufferedImage("../img/eqText.png", 2);
     	
     	Icon eqImg = new ImageIcon(eqIcon.getScaledInstance(100,70, 0));
+		
 	
-		
-		
-		jmuPurple = new Color(69,0,132);
-	 	jmuGold = new Color(203,182,119);
-    	setBackground(jmuGold);
-		setLayout(null);
-		setBounds(0,250,500,300);
-		setBorder(new LineBorder(jmuPurple,5));
+	 	
+	 	
 		JPanel sliderPanel = new JPanel();
 		sliderPanel.setLayout(null);
-		sliderPanel.setBounds(20,20,460,235);
+		sliderPanel.setBounds(20,30,550,235);
    
     	JLabel panelTitle = new JLabel(eqImg);
-    	panelTitle.setBounds(((int)sliderPanel.getBounds().getCenterX()) - 75,10,110,80);
+    	panelTitle.setBounds(((int)sliderPanel.getBounds().getCenterX()) - 75,15,110,80);
     	
 		s250 = new JSlider(JSlider.VERTICAL,-12,12,0);
 		s250.setMajorTickSpacing(3);
