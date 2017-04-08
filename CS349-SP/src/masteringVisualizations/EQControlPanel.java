@@ -141,13 +141,13 @@ public class EQControlPanel extends JPanel implements ChangeListener, ActionList
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Iterator<double[]> it = AudioControlPanel.getBufferedSound().getSignals();
+		
 	
 		if(e.getActionCommand().equals("LPF"))
 		{
-			while(it.hasNext()){
+			
 				
-			}
+			
 			  
 		}
 		else if(e.getActionCommand().equals("HPF"))

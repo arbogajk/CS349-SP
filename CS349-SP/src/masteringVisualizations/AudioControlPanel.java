@@ -6,8 +6,10 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -134,46 +136,56 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
-		String	audioFile = files.getSelectedItem().toString();
-		if(clip.isActive() && e.getSource().equals(files))
-			clip.stop();
-		InputStream is = finder.findInputStream("../audio_src/" + audioFile);
-	
-		BufferedInputStream bis = new BufferedInputStream(is);
-		
-		
-		try {
-			AudioInputStream ais = AudioSystem.getAudioInputStream(bis);
-			
-			BufferedSoundFactory factory = new BufferedSoundFactory(finder);
-			copySound = factory.createBufferedSound(ais);
-			
-			if(!clip.isActive())
-				clip = AudioSystem.getClip();
 
+		try {
+			
+			AudioInputStream stream;
+			if(clip.isActive() && files.hasFocus())
+			{
+				clip.stop();
+			}
+			String	audioFile = files.getSelectedItem().toString();
+		
+			InputStream is = finder.findInputStream("../audio_src/" + audioFile);
+		    BufferedSoundFactory soundFactory = new BufferedSoundFactory(finder);
+			BufferedSound bs = soundFactory.createBufferedSound("../audio_src/"+audioFile);
+			stream = AudioSystem.getAudioInputStream(is);
+		
+			
+			
 			if(e.getSource().equals(playbutton))
 			{
-				clip.open(ais);
-				clip.setFramePosition(position);
-				gainControl = 
-					    (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-				clip.start();
-				currentAudioLevel = 3;
-				gainControl.setValue((float)currentAudioLevel);
-				updateLevel();
+				if(clip.isActive() == false)
+				{
+					clip = AudioSystem.getClip();
+					clip.open(stream);
+					clip.setFramePosition(position);
+					clip.start();
+				}
+				
 			}
 			else if(e.getSource().equals(pausebutton))
 			{
-				position = clip.getFramePosition();
-				clip.stop();
-			}
-			else if(e.getSource().equals(stopbutton)){
-				if(clip.isRunning()){
+				if(clip.isActive() == true){
+					position = clip.getFramePosition();
 					clip.stop();
-					position = 0;
 					
 				}
+				else
+				{
+					clip.setFramePosition(position);
+					clip.start();
+				}
+				
+			}
+			else if(e.getSource().equals(stopbutton)){
+				if(clip.isActive()){
+					clip.stop();
+					position = 0;
+				
+					
+				}
+				
 			}
 				
 			
@@ -207,31 +219,16 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		
 		
 	
-			currentAudioLevel = (int)gainControl.getValue();
-			gainControl.setValue(volumeSlider.getValue()); // Reduce volume by 10 decibels.
-			updateLevel();
-			clip.start();
 		
-		if(currentAudioLevel == 0)
-		{
-			FloatControl mute = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
-			mute.setValue(-50.0f);
-		}
 		
-		System.out.println(gainControl.getValue());
+		
 		
 	}
-	public void updateLevel(){
+	public void updateLevel(float level){
 		
-			volume.setValue((int)Math.abs(gainControl.getValue()));
-			volume.updateUI();
+		
 		
 	}
-	public static Clip getClip(){
-		return clip;
-	}
-	public static BufferedSound getBufferedSound(){
-		
-		return copySound;
-	}
+	
+
 }
