@@ -13,7 +13,6 @@ import javax.swing.event.ChangeListener;
 import app.*;
 import io.*;
 import masteringVisualizations.AudioControlPanel;
-import masteringVisualizations.EQControlPanel;
 import visual.*;
 import visual.dynamic.described.DescribedSprite;
 import visual.dynamic.described.SampledSprite;
@@ -59,9 +58,11 @@ public class      MasteringApp
     	contentPane.setLayout(null);
     	AudioControlPanel audioControls = new AudioControlPanel();
     	audioControls.setBounds(0,600,600,200);
-    	EQControlPanel eqPanel = new EQControlPanel();
+    	//EQControlPanel eqPanel = new EQControlPanel();
     	contentPane.add(audioControls);
-    	contentPane.add(eqPanel);
+    	
+    	JPanel eq = audioControls.eqControlPanel();
+    	contentPane.add(eq);
     	
          
     }

@@ -33,6 +33,9 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.jtransforms.fft.DoubleFFT_1D;
+import org.jtransforms.utils.IOUtils;
+
 import auditory.sampled.AddOp;
 import auditory.sampled.BoomBox;
 import auditory.sampled.BufferedSound;
@@ -40,6 +43,13 @@ import auditory.sampled.BufferedSoundFactory;
 import auditory.sampled.FIRFilter;
 import auditory.sampled.FIRFilterOp;
 import io.ResourceFinder;
+import net.beadsproject.beads.core.AudioContext;
+import net.beadsproject.beads.core.AudioIO;
+import net.beadsproject.beads.data.Sample;
+import net.beadsproject.beads.data.SampleManager;
+import net.beadsproject.beads.ugens.Gain;
+import net.beadsproject.beads.ugens.OnePoleFilter;
+import net.beadsproject.beads.ugens.SamplePlayer;
 import visual.statik.sampled.ImageFactory;
 
 public class AudioControlPanel extends JPanel implements ActionListener,ChangeListener{
@@ -48,27 +58,40 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	 */
 	private static final long serialVersionUID = 1L;
 	private ResourceFinder finder;
-	private Color jmuPurple,jmuGold;
 	
-	private JButton playbutton,pausebutton,stopbutton;
-	private JComboBox files;
+	private Color jmuPurple,jmuGold;
+	private Font font = new Font("Times New Roman",Font.BOLD,16);;
+	private Font title = new Font("Times New Roman",Font.BOLD,18);
+
 	private int position=0;
 	private boolean isPlaying = false;
+	
 	public static Clip clip; 
+	public static BufferedSound bs;
+	
 	private JSlider volumeSlider;
+	private JSlider s250,s800,s25,s8;
 	private JProgressBar volume;
-	private int currentAudioLevel = 0;
-	private FloatControl gainControl;
-	public static BufferedSound copySound;
-	private Font font;
+	private JComboBox<String> files;
+	private JButton lpfButton, hpfButton;
+	private JButton playbutton, pausebutton, stopbutton;
+	
+    private AudioContext ac;
+    private SamplePlayer sp;
+	private Gain g;
+	private OnePoleFilter lpf;			//for low pass filter
+	private SampleManager contentManager;
+	private JPanel eqPanel;
+	
+	
+	
 	
 	public AudioControlPanel(){
 		super();
 		setLayout(null);
 		setBounds(0, 520, 800, 250);
 		
-		font = new Font("Times New Roman",Font.BOLD,16);
-		
+	
     	finder = ResourceFinder.createInstance(this);
     	ImageFactory imgFactory = new ImageFactory(finder);
     	Image pIcon = imgFactory.createBufferedImage("../img/playButton.png", 4);
@@ -119,12 +142,12 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	volume.setValue(0);
     	volume.setBounds(550, 20, 40, 150);
  
-    	try {
-			clip = AudioSystem.getClip();
-		} catch (LineUnavailableException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//    	try {
+//			clip = AudioSystem.getClip();
+//		} catch (LineUnavailableException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
     	add(volumeSlider);
     	add(volumeLabel);
     	add(files);
@@ -133,102 +156,218 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	add(pausebutton);
     	add(stopbutton);
     	
+    	samplePlayerInit();
+    	
+		
+    	
+	}
+	public void samplePlayerInit(){
+		String	audioFile = files.getSelectedItem().toString();
+		String sourceFile ="audio/" + audioFile;
+		Sample sample = null;
+		try {
+			sample = new Sample(sourceFile);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		ac = new AudioContext();
+		sp = new SamplePlayer(ac, sample);
+		g = new Gain(ac, 2, 0.2f);
+		g.addInput(sp);
+		ac.out.addInput(g);
+		
+		  
+	    sp.setKillOnEnd(false);
+		lpf = new OnePoleFilter(ac,700.0f);
+		lpf.addInput(sp);
+		
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-
-		try {
-			
-			AudioInputStream stream;
-			if(clip.isActive() && files.hasFocus())
-			{
-				clip.stop();
-			}
-			String	audioFile = files.getSelectedItem().toString();
+		String	audioFile = "audio/" + files.getSelectedItem().toString();
+		Sample sample = null;
+	    if(files.hasFocus()){
+	    	ac.stop();
+	    	
+	    }
 		
-			InputStream is = finder.findInputStream("../audio_src/" + audioFile);
-		    BufferedSoundFactory soundFactory = new BufferedSoundFactory(finder);
-			BufferedSound bs = soundFactory.createBufferedSound("../audio_src/"+audioFile);
-			stream = AudioSystem.getAudioInputStream(is);
-		
-			
+		sample = SampleManager.fromGroup(audioFile, 1);
+		//sample = new Sample(audioFile);
+	
+		if(files.hasFocus()){
+			ac.stop();
+			sp.setSample(sample);
+		    
+		}
 			
 			if(e.getSource().equals(playbutton))
 			{
-				if(clip.isActive() == false)
+				if(ac != null && !ac.isRunning())
 				{
-					clip = AudioSystem.getClip();
-					clip.open(stream);
-					clip.setFramePosition(position);
-					clip.start();
+					ac.start();
+
+				
 				}
+
 				
 			}
 			else if(e.getSource().equals(pausebutton))
 			{
-				if(clip.isActive() == true){
-					position = clip.getFramePosition();
-					clip.stop();
-					
-				}
-				else
-				{
-					clip.setFramePosition(position);
-					clip.start();
-				}
+				ac.stop();
 				
 			}
-			else if(e.getSource().equals(stopbutton)){
-				if(clip.isActive()){
-					clip.stop();
-					position = 0;
-				
-					
-				}
+			else if(e.getSource().equals(stopbutton))
+			{
+				ac.stop();
+				ac.reset();
+
 				
 			}
+		
+			
+/************************************* EQ LISTENERS ********************************************************/
+			else if(e.getActionCommand().equals("LPF"))
+			{
+			
+				lpf.setFrequency(500);
+				sp.update();
+				lpf.start();
+				lpfButton.setBackground(jmuPurple);
+				this.repaint();
 				
-			
-			
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (UnsupportedAudioFileException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (LineUnavailableException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+				super.repaint();
+			}
+			else if(e.getActionCommand().equals("HPF"))
+			{
+				
+			}
+			else
+			{
+				
+			}
 		}
-		
-		
-		// TODO Auto-generated method stub
-		
-		
-	}
+	
 			
 	public JComboBox buildDropDown(){
 		String audioFiles[] ={"General Grevious.wav", "underminers-drumloop.wav","VeilofShadows-Outro.wav"};
+		contentManager = new SampleManager();
+		for(int i = 0; i < audioFiles.length;i++){
+			try {
+				contentManager.addToGroup("audio/"+audioFiles[i], new Sample("audio/"+audioFiles[i]));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		JComboBox fileSelect = new JComboBox(audioFiles);
 		fileSelect.addActionListener(this);
 		return fileSelect;
 		
 	}
+	
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		
-		
-	
-		
-		
-		
-		
 	}
+
 	public void updateLevel(float level){
 		
-		
+		g.setGain(level);
 		
 	}
+
+	
+	
+	public JPanel eqControlPanel(){
+		eqPanel = new JPanel();
+	    	
+		eqPanel.setBackground(jmuGold);
+		eqPanel.setLayout(null);
+		eqPanel.setBounds(0,300,600,300);
+		eqPanel.setBorder(new LineBorder(jmuPurple,5));
+		
+		finder = ResourceFinder.createInstance(this);
+    	ImageFactory imgFactory = new ImageFactory(finder);
+    	Image eqIcon= imgFactory.createBufferedImage("../img/eqText.png", 2);
+    	
+    	Icon eqImg = new ImageIcon(eqIcon.getScaledInstance(100,70, 0));
+		
+		JPanel sliderPanel = new JPanel();
+		sliderPanel.setLayout(null);
+		sliderPanel.setBounds(20,30,550,235);
+   
+    	JLabel panelTitle = new JLabel(eqImg);
+    	panelTitle.setBounds(((int)sliderPanel.getBounds().getCenterX()) - 75,15,110,80);
+    	
+		s250 = new JSlider(JSlider.VERTICAL,-12,12,0);
+		s250.setMajorTickSpacing(3);
+		s250.setPaintLabels(true);
+		s250.setPaintTicks(true);
+		s250.setSnapToTicks(true);
+		s250.addChangeListener(this);
+		s250.setBounds(40,50,50,170);
+		s250.setForeground(jmuPurple);
+		
+		s800 = new JSlider(JSlider.VERTICAL,-12,12,0);
+		s800.setMajorTickSpacing(3);
+		s800.setPaintLabels(true);
+		s800.setPaintTicks(true);
+		s800.setSnapToTicks(true);
+		s800.addChangeListener(this);
+		s800.setForeground(jmuPurple);
+		s800.setBounds(120,50,50,170);
+		
+		s25= new JSlider(JSlider.VERTICAL,-12,12,0);
+		s25.setMajorTickSpacing(3);
+		s25.setPaintLabels(true);
+		s25.setPaintTicks(true);
+		s25.setSnapToTicks(true);
+		s25.addChangeListener(this);
+		s25.setForeground(jmuPurple);
+		s25.setBounds(200,50,50,170);
+		
+		s8= new JSlider(JSlider.VERTICAL,-12,12,0);
+		s8.setMajorTickSpacing(3);
+		s8.setPaintLabels(true);
+		s8.setPaintTicks(true);
+		s8.setSnapToTicks(true);
+		s8.addChangeListener(this);
+		s8.setForeground(jmuPurple);
+		s8.setBounds(270,50,50,170);
+		
+		lpfButton = new JButton("LPF");
+		hpfButton = new JButton("HPF");
+		lpfButton.addActionListener(this);
+		hpfButton.addActionListener(this);
+		lpfButton.setBounds(350,20,100,30);
+		hpfButton.setBounds(350,80,100,30);
+		
+		eqPanel.add(panelTitle);
+		sliderPanel.add(s250);
+		sliderPanel.add(s800);
+		sliderPanel.add(s25);
+		sliderPanel.add(s8);
+		sliderPanel.add(lpfButton);
+		sliderPanel.add(hpfButton);
+		eqPanel.add(sliderPanel);
+		
+		return eqPanel;
+	}
+	
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
 	
 
 }
