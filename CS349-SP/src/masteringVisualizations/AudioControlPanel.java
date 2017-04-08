@@ -208,7 +208,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	}
 			
 	public JComboBox buildDropDown(){
-		String audioFiles[] ={"underminers-drumloop.wav","VeilofShadows-Outro.wav"};
+		String audioFiles[] ={"General Grevious.wav", "underminers-drumloop.wav","VeilofShadows-Outro.wav"};
 		JComboBox fileSelect = new JComboBox(audioFiles);
 		fileSelect.addActionListener(this);
 		return fileSelect;
