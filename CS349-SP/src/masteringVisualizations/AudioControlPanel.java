@@ -21,6 +21,8 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -29,6 +31,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
+import javax.swing.JToggleButton;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -64,9 +67,10 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private Font font = new Font("Times New Roman",Font.BOLD,16);;
 	private Font title = new Font("Times New Roman",Font.BOLD,18);
 
-	private int position=0;
-	private boolean isPlaying = false;
+
 	private int currVol, prevVol;
+	private int lpfOn =0;
+	private int hpfOn =0;
 	public static Clip clip; 
 	public static BufferedSound bs;
 	
@@ -75,7 +79,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private JSlider s250,s800,s25,s8;
 	private JProgressBar volume;
 	private JComboBox<String> files;
-	private JButton lpfButton, hpfButton;
+	private JToggleButton lpfButton, hpfButton;
 	private JButton playbutton, pausebutton, stopbutton;
 
 	
@@ -146,6 +150,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	volume.setValue(0);
     	volume.setBounds(550, 20, 40, 150);
  
+    
     	add(volumeSlider);
     	add(volumeLabel);
     	add(files);
@@ -155,9 +160,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	add(stopbutton);
     	
     	samplePlayerInit();
-    	
-		
-    	
+
 	}
 	public void samplePlayerInit(){
 		String	audioFile = files.getSelectedItem().toString();
@@ -230,6 +233,13 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
    
     	JLabel panelTitle = new JLabel(eqImg);
     	panelTitle.setBounds(((int)sliderPanel.getBounds().getCenterX()) - 75,15,110,80);
+    	JLabel f250,f800,f25,f8;
+    	
+    	f250 = new JLabel("250 Hz");
+    	f800 = new JLabel("800 Hz");
+    	f25 = new JLabel("2.5 kHz");
+    	f8 = new JLabel("8 kHz");
+    	
     	
 		s250 = new JSlider(JSlider.VERTICAL,-12,12,0);
 		s250.setMajorTickSpacing(3);
@@ -239,6 +249,9 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		s250.addChangeListener(this);
 		s250.setBounds(40,50,50,170);
 		s250.setForeground(jmuPurple);
+		f250.setBounds((int)s250.getBounds().getMinX() + 4,(int)s250.getBounds().getMaxY() -6,50,30);
+		
+		
 		
 		s800 = new JSlider(JSlider.VERTICAL,-12,12,0);
 		s800.setMajorTickSpacing(3);
@@ -248,6 +261,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		s800.addChangeListener(this);
 		s800.setForeground(jmuPurple);
 		s800.setBounds(120,50,50,170);
+		f800.setBounds((int)s800.getBounds().getMinX() + 4,(int)s800.getBounds().getMaxY() - 6,50,30);
 		
 		s25= new JSlider(JSlider.VERTICAL,-12,12,0);
 		s25.setMajorTickSpacing(3);
@@ -257,7 +271,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		s25.addChangeListener(this);
 		s25.setForeground(jmuPurple);
 		s25.setBounds(200,50,50,170);
-		
+		f25.setBounds((int)s25.getBounds().getMinX() + 4,(int)s25.getBounds().getMaxY() - 6,50,30);
 		s8= new JSlider(JSlider.VERTICAL,-12,12,0);
 		s8.setMajorTickSpacing(3);
 		s8.setPaintLabels(true);
@@ -266,20 +280,27 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		s8.addChangeListener(this);
 		s8.setForeground(jmuPurple);
 		s8.setBounds(270,50,50,170);
+		f8.setBounds((int)s8.getBounds().getMinX() + 4,(int)s8.getBounds().getMaxY() - 6,50,30);
 		
-		lpfButton = new JButton("LPF");
-		hpfButton = new JButton("HPF");
+		lpfButton = new JToggleButton("LPF");
+		hpfButton = new JToggleButton("HPF");
 		lpfButton.addActionListener(this);
 		hpfButton.addActionListener(this);
+		
 		lpfButton.setBounds(350,20,100,30);
 		hpfButton.setBounds(350,80,100,30);
 		
+	
 		
 		eqPanel.add(panelTitle);
 		sliderPanel.add(s250);
+		sliderPanel.add(f250);
 		sliderPanel.add(s800);
+		sliderPanel.add(f800);
 		sliderPanel.add(s25);
+		sliderPanel.add(f25);
 		sliderPanel.add(s8);
+		sliderPanel.add(f8);
 		sliderPanel.add(lpfButton);
 		sliderPanel.add(hpfButton);
 		eqPanel.add(sliderPanel);
@@ -345,30 +366,56 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			sp.reset();
 			ac.reset();
 		}
-	
 		
-/************************************* EQ Low/High Pass Filters ********************************************************/
-		else if(e.getActionCommand().equals("LPF"))
+		/************************************* EQ Low/High Pass Filters ********************************************************/
+		else if(e.getSource().equals(lpfButton))
 		{
-			lpf.setFrequency(100.0f);
-			lpfGain.setValue(0.6f);
+		
+			if(lpfOn == 0){
+				System.out.println("armed");
+				lpf.setFrequency(100.0f);
+			
+				lpfOn = 1;
+			
+			}
+			else
+			{
+				
+				lpf.setFrequency(0.0f);
+				lpfGain.setValue(0.0f);
+				lpfOn = 0;
+			}
 		
 			sp.start();
 
 		}
-		else if(e.getActionCommand().equals("HPF"))
+		else if(e.getSource().equals(hpfButton))
 		{
-
-			hpf.setFrequency(16000.0f);
-			System.out.println(hpfGain.getValue() * -3.0f);
-			hpfGain.setValue(hpfGain.getValue() / -3.0f);
+			if(hpfOn == 0){
+				System.out.println("armed");
+				hpf.setFrequency(16000.0f);
+				System.out.println(hpfGain.getValue() * -3.0f);
+				hpfGain.setValue(hpfGain.getValue() / -3.0f);
+				hpfOn = 1;
+			}
+			else{
+				hpf.setFrequency(0.0f);
+				hpfGain.setValue(0.0f);
+				hpfOn = 0;
+			}
 			sp.start();
 		}
 	
+		
+		
+
 	}
 	
 
-
+/**
+ * This method needs some work, it works mostly, but needs to be fine tuned a bit
+ * should change the volume of the music sample.
+ */
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
@@ -376,13 +423,18 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		if(e.getSource().equals(volumeSlider)){
 			currVol = volumeSlider.getValue();
 			if(prevVol < currVol){
-				if(g.getGain() < 3.0f)
-					g.setGain(g.getGain() + 0.6f);
+				if(g.getGain() > -2.0f)
+					g.setGain(g.getGain() * 2.0f);
 			}
-			else{
-				g.setGain(g.getGain() * -0.4f);
+			else
+			{
+				g.setGain(g.getGain()  * -0.7f);
 			}
 		}
+	
+		
+		
+		
 		System.out.println(g.getGain());
 	    	
 	
