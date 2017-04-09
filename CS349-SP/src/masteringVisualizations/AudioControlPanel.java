@@ -31,7 +31,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -91,8 +93,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private Glide lpfGain, hpfGain;
 	private JPanel eqPanel;
 	
-	
-	
+	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
+	private JSpinner lpfSpinner, hpfSpinner;
 	
 	public AudioControlPanel(){
 		super();
@@ -174,7 +176,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		}
 		ac = new AudioContext();
 		sp = new SamplePlayer(ac, sample);
-		g = new Gain(ac, 2, 0.2f);
+		g = new Gain(ac, 2, 0.25f);
 		g.addInput(sp);
 		ac.out.addInput(g);
 		lpfGain = new Glide(ac,0.2f);
@@ -290,7 +292,16 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		lpfButton.setBounds(350,20,100,30);
 		hpfButton.setBounds(350,80,100,30);
 		
+		hpfSpinner = new JSpinner();
+		lpfSpinner = new JSpinner();
+		filterFreqLPF = new SpinnerNumberModel(100,20, 1000,10);
+		filterFreqHPF = new SpinnerNumberModel(16000,1000,20000,100);
 	
+		lpfSpinner.setModel(filterFreqLPF);
+		lpfSpinner.setBounds((int)lpfButton.getBounds().getMaxX() + 6, (int)lpfButton.getBounds().getY(),70,30);
+		hpfSpinner.setModel(filterFreqHPF);
+		hpfSpinner.setBounds((int)hpfButton.getBounds().getMaxX() + 6, (int)hpfButton.getBounds().getY(),70,30);
+		
 		
 		eqPanel.add(panelTitle);
 		sliderPanel.add(s250);
@@ -303,6 +314,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		sliderPanel.add(f8);
 		sliderPanel.add(lpfButton);
 		sliderPanel.add(hpfButton);
+		sliderPanel.add(lpfSpinner);
+		sliderPanel.add(hpfSpinner);
 		eqPanel.add(sliderPanel);
 		
 		return eqPanel;
@@ -354,6 +367,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 				currVol = volumeSlider.getValue();
 				prevVol = currVol;
 			}	
+			System.out.println("Initial Gain" + g.getGain());
 		}
 		else if(e.getSource().equals(pausebutton))
 		{
@@ -373,7 +387,9 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		
 			if(lpfOn == 0){
 				System.out.println("armed");
-				lpf.setFrequency(100.0f);
+				float frequency = filterFreqLPF.getNumber().floatValue();
+				lpf.setFrequency(frequency);
+				
 			
 				lpfOn = 1;
 			
@@ -382,7 +398,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			{
 				
 				lpf.setFrequency(0.0f);
-				lpfGain.setValue(0.0f);
+			
 				lpfOn = 0;
 			}
 		
@@ -394,13 +410,14 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			if(hpfOn == 0){
 				System.out.println("armed");
 				hpf.setFrequency(16000.0f);
-				System.out.println(hpfGain.getValue() * -3.0f);
-				hpfGain.setValue(hpfGain.getValue() / -3.0f);
+				
+				
+				System.out.println(hpfGain.getValue());
 				hpfOn = 1;
 			}
 			else{
 				hpf.setFrequency(0.0f);
-				hpfGain.setValue(0.0f);
+				hpfGain.setValue(0.1f);
 				hpfOn = 0;
 			}
 			sp.start();
@@ -423,12 +440,13 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		if(e.getSource().equals(volumeSlider)){
 			currVol = volumeSlider.getValue();
 			if(prevVol < currVol){
-				if(g.getGain() > -2.0f)
-					g.setGain(g.getGain() * 2.0f);
+				if(g.getGain() < 1.0f)
+					g.setGain(g.getGain() + 0.10f);
 			}
 			else
 			{
-				g.setGain(g.getGain()  * -0.7f);
+				
+					g.setGain(g.getGain()  - 0.10f);
 			}
 		}
 	
