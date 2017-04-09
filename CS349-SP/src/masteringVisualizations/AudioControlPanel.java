@@ -48,6 +48,7 @@ import net.beadsproject.beads.core.AudioIO;
 import net.beadsproject.beads.data.Sample;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.ugens.Gain;
+import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.OnePoleFilter;
 import net.beadsproject.beads.ugens.SamplePlayer;
 import visual.statik.sampled.ImageFactory;
@@ -75,12 +76,15 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private JComboBox<String> files;
 	private JButton lpfButton, hpfButton;
 	private JButton playbutton, pausebutton, stopbutton;
+	private int lpfToggle = 0;
+	private int hpfToggle = 0;
 	
     private AudioContext ac;
     private SamplePlayer sp;
 	private Gain g;
-	private OnePoleFilter lpf;			//for low pass filter
+	private OnePoleFilter lpf,hpf;			//for low pass filter
 	private SampleManager contentManager;
+	private Glide gainValueHPF,gainValueLPF;
 	private JPanel eqPanel;
 	
 	
@@ -123,7 +127,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	stopbutton.setBounds(125,(int)files.getBounds().getMaxY() - 20,60,60);
     	stopbutton.addActionListener(this);
     	
-    	volumeSlider = new JSlider(JSlider.VERTICAL,0,6,3);
+    	volumeSlider = new JSlider(JSlider.VERTICAL,0,10,3);
+    	volumeSlider.addChangeListener(this);
     	volumeSlider.setMajorTickSpacing(1);
     	volumeSlider.setSnapToTicks(true);
     	volumeSlider.setPaintTicks(true);
@@ -131,23 +136,16 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	volumeSlider.setFont(font);
     	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
     	volumeSlider.setBackground(jmuPurple);
+    	volumeSlider.setBounds(425, 20, 100, 150);
     	
     	JLabel volumeLabel = new JLabel("Volume");
     	volumeLabel.setFont(font);
-    	volumeSlider.setBounds(425, 20, 100, 150);
-    	volumeSlider.addChangeListener(this);
     	volumeLabel.setBounds(450,170,70,30);
     	
     	volume = new JProgressBar(JProgressBar.VERTICAL,0,1);
     	volume.setValue(0);
     	volume.setBounds(550, 20, 40, 150);
  
-//    	try {
-//			clip = AudioSystem.getClip();
-//		} catch (LineUnavailableException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
     	add(volumeSlider);
     	add(volumeLabel);
     	add(files);
@@ -176,77 +174,20 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		g = new Gain(ac, 2, 0.2f);
 		g.addInput(sp);
 		ac.out.addInput(g);
-		
-		  
+		gainValueHPF = new Glide(ac,0.0f,0.0f);
+		gainValueLPF = new Glide(ac,0.0f,0.0f);
 	    sp.setKillOnEnd(false);
-		lpf = new OnePoleFilter(ac,700.0f);
+	    
+		lpf = new OnePoleFilter(ac,0.0f);
+		hpf = new OnePoleFilter(ac,0.0f);
+		lpf.addInput(gainValueLPF);
+		hpf.addInput(gainValueHPF);
 		lpf.addInput(sp);
+		hpf.addInput(sp);
+		ac.out.addInput(lpf);
+		ac.out.addInput(hpf);
 		
 	}
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		String	audioFile = "audio/" + files.getSelectedItem().toString();
-		Sample sample = null;
-	    if(files.hasFocus()){
-	    	ac.stop();
-	    	
-	    }
-		
-		sample = SampleManager.fromGroup(audioFile, 1);
-		//sample = new Sample(audioFile);
-	
-		if(files.hasFocus()){
-			ac.stop();
-			sp.setSample(sample);
-		    
-		}
-			
-			if(e.getSource().equals(playbutton))
-			{
-				if(ac != null && !ac.isRunning())
-				{
-					ac.start();
-
-				
-				}
-
-				
-			}
-			else if(e.getSource().equals(pausebutton))
-			{
-				ac.stop();
-				
-			}
-			else if(e.getSource().equals(stopbutton))
-			{
-				ac.stop();
-				ac.reset();
-
-				
-			}
-		
-			
-/************************************* EQ LISTENERS ********************************************************/
-			else if(e.getActionCommand().equals("LPF"))
-			{
-			
-				lpf.setFrequency(500);
-				sp.update();
-				lpf.start();
-				lpfButton.setBackground(jmuPurple);
-				this.repaint();
-				
-				super.repaint();
-			}
-			else if(e.getActionCommand().equals("HPF"))
-			{
-				
-			}
-			else
-			{
-				
-			}
-		}
 	
 			
 	public JComboBox buildDropDown(){
@@ -267,17 +208,6 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		
 	}
 	
-	@Override
-	public void stateChanged(ChangeEvent e) {
-		
-	}
-
-	public void updateLevel(float level){
-		
-		g.setGain(level);
-		
-	}
-
 	
 	
 	public JPanel eqControlPanel(){
@@ -344,6 +274,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		lpfButton.setBounds(350,20,100,30);
 		hpfButton.setBounds(350,80,100,30);
 		
+		
 		eqPanel.add(panelTitle);
 		sliderPanel.add(s250);
 		sliderPanel.add(s800);
@@ -355,10 +286,137 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		
 		return eqPanel;
 	}
+	public void toggleFilterButtons(JButton button){
+
+		if(button.equals(lpfButton)){
+			if(lpfToggle == 0 ){
+			button.setBackground(jmuGold);
+			button.setForeground(jmuPurple);
+			button.setOpaque(true);
+			button.repaint(10);
+			}
+			else
+			{
+				button.setBackground(null);
+				button.setForeground(null);
+			}
+		}
+		else
+		{
+			if(hpfToggle == 0 ){
+				button.setBackground(jmuGold);
+				button.setForeground(jmuPurple);
+				}
+				else
+				{
+					button.setBackground(null);
+					button.setForeground(null);
+				}
+		}
+		
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		
+	    if(files.hasFocus()){
+	    	ac.stop();
+	    }
+	    
+	    String	audioFile = "audio/" + files.getSelectedItem().toString();
+		Sample sample = null;
+		sample = SampleManager.fromGroup(audioFile, 1);
+	
+	
+		if(files.hasFocus()){
+			ac.stop();
+			lpf.setFrequency(0.0f);
+			hpf.setFrequency(0.0f);
+			lpf.setValue(0.0f);
+			hpf.setValue(0.0f);
+			sp.reset();
+			lpf.setFrequency(0.0f);
+			hpf.setFrequency(0.0f);
+			sp.setSample(sample);
+		    
+		}
+			
+		if(e.getSource().equals(playbutton))
+		{
+			if(ac != null && !ac.isRunning())
+			{
+				ac.start();
+
+			
+			}
+
+			
+		}
+		else if(e.getSource().equals(pausebutton))
+		{
+			ac.stop();
+			
+		}
+		else if(e.getSource().equals(stopbutton))
+		{
+			ac.stop();
+			sp.reset();
+		
+			ac.reset();
+
+			
+		}
+	
+		
+/************************************* EQ LISTENERS ********************************************************/
+		else if(e.getActionCommand().equals("LPF"))
+		{
+			lpf.setFrequency(100.0f);
+			lpf.setValue(3.0f);
+		
+			sp.start();
+
+		}
+		else if(e.getActionCommand().equals("HPF"))
+		{
+
+			hpf.setFrequency(16000.0f);
+			sp.start();
+		}
+	
+	}
 	
 
 
 
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		float currentGain = g.getGain();
+		float newGain;
+		
+		if(e.getSource().equals(volumeSlider)){
+			newGain = volumeSlider.getValue();
+//			if(newGain > currentGain)
+//			{
+//				System.out.println(currentGain);
+//				g.setGain(currentGain * -0.4f);
+//			}
+//			else
+//			{
+//				System.out.println(currentGain);
+//				g.setGain(currentGain/-0.4f);
+//			}
+		}
+	    	
+	
+		
+	}
+
+	public void updateLevel(float level){
+		
+		
+		
+	}
 
 	
 	
