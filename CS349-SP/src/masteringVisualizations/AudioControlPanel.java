@@ -449,14 +449,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 					g.setGain(g.getGain()  - 0.10f);
 			}
 		}
-	
-		
-		
-		
 		System.out.println(g.getGain());
 	    	
-	
-		
 	}
 
 	public void updateLevel(float level){
@@ -464,15 +458,5 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		
 		
 	}
-
 	
-	
-	
-	
-	
-	
-	
-	
-	
-
 }
