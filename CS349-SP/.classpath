@@ -3,15 +3,16 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="lib" path="multimedia.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joey/Desktop/beads-master/beads-master/dependencies/jarjar-1.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joey/Desktop/beads-master/beads-master/dependencies/jl1.0.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joey/Desktop/beads-master/beads-master/dependencies/jna-3.2.7.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joey/Desktop/beads-master/beads-master/dependencies/mp3spi1.9.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joey/Desktop/beads-master/beads-master/dependencies/org-jaudiolibs-audioservers.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joey/Desktop/beads-master/beads-master/dependencies/org-jaudiolibs-audioservers-jack.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joey/Desktop/beads-master/beads-master/dependencies/org-jaudiolibs-audioservers-javasound.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joey/Desktop/beads-master/beads-master/dependencies/tools.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joey/Desktop/beads-master/beads-master/dependencies/tritonus_share.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Joey/Desktop/beads-master/beads-master/dependencies/tritonus_aos-0.3.6.jar"/>
+	<classpathentry kind="lib" path="dependencies/jarjar-1.0.jar"/>
+	<classpathentry kind="lib" path="dependencies/jl1.0.1.jar"/>
+	<classpathentry kind="lib" path="dependencies/jna-3.2.7.jar"/>
+	<classpathentry kind="lib" path="dependencies/mp3spi1.9.4.jar"/>
+	<classpathentry kind="lib" path="dependencies/org-jaudiolibs-audioservers-jack.jar"/>
+	<classpathentry kind="lib" path="dependencies/org-jaudiolibs-audioservers-javasound.jar"/>
+	<classpathentry kind="lib" path="dependencies/org-jaudiolibs-audioservers.jar"/>
+	<classpathentry kind="lib" path="dependencies/org-jaudiolibs-jnajack.jar"/>
+	<classpathentry kind="lib" path="dependencies/tools.jar"/>
+	<classpathentry kind="lib" path="dependencies/tritonus_aos-0.3.6.jar"/>
+	<classpathentry kind="lib" path="dependencies/tritonus_share.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
