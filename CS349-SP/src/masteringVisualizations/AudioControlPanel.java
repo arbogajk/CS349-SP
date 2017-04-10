@@ -451,14 +451,9 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 					g.setGain(g.getGain()  - 0.10f);
 			}
 		}
-<<<<<<< HEAD
-		System.out.println(g.getGain());
-	    	
-=======
-	
+
 		System.out.println(g.getGain());
 
->>>>>>> acad2f1c2667f447d30ee4c9f53fb3c2d2d1aa3d
 	}
 
 	public void updateLevel(float level){
