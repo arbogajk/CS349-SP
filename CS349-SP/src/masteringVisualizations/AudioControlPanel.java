@@ -192,7 +192,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		ac.out.addInput(g);
 		lpfGain = new Glide(ac,0.0f);
 		hpfGain = new Glide(ac,0.0f);
-	    sp.setKillOnEnd(true);
+	    sp.setKillOnEnd(false);
 	    
 		lpf = new OnePoleFilter(ac,0.0f);
 		hpf = new OnePoleFilter(ac,0.0f);
