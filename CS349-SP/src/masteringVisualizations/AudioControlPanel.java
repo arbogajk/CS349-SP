@@ -9,6 +9,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Iterator;
 
 import javax.sound.sampled.AudioInputStream;
@@ -38,9 +39,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jtransforms.fft.DoubleFFT_1D;
-import org.jtransforms.utils.IOUtils;
-
+import visual.statik.sampled.ImageFactory;
 import auditory.sampled.AddOp;
 import auditory.sampled.BoomBox;
 import auditory.sampled.BufferedSound;
@@ -48,15 +47,17 @@ import auditory.sampled.BufferedSoundFactory;
 import auditory.sampled.FIRFilter;
 import auditory.sampled.FIRFilterOp;
 import io.ResourceFinder;
+
+
 import net.beadsproject.beads.core.AudioContext;
-import net.beadsproject.beads.core.AudioIO;
 import net.beadsproject.beads.data.Sample;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.OnePoleFilter;
 import net.beadsproject.beads.ugens.SamplePlayer;
-import visual.statik.sampled.ImageFactory;
+
+
 
 public class AudioControlPanel extends JPanel implements ActionListener,ChangeListener{
 	/**
@@ -104,9 +105,10 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	
     	finder = ResourceFinder.createInstance(this);
     	ImageFactory imgFactory = new ImageFactory(finder);
-    	Image pIcon = imgFactory.createBufferedImage("../img/playButton.png", 4);
-    	Image pauseIcon = imgFactory.createBufferedImage("../img/pauseButton.png",4);
-    	Image stopIcon = imgFactory.createBufferedImage("../img/stopButton.png",4);
+    	Image pIcon = imgFactory.createBufferedImage("/img/playButton.png", 4);
+    	Image pauseIcon = imgFactory.createBufferedImage("/img/pauseButton.png",4);
+    	Image stopIcon = imgFactory.createBufferedImage("/img/stopButton.png",4);
+    	
     	Icon play = new ImageIcon(pIcon.getScaledInstance(50, 50, 0));
     	Icon pause = new ImageIcon(pauseIcon.getScaledInstance(50, 50, 0));
     	Icon stop = new ImageIcon(stopIcon.getScaledInstance(50, 50, 0));
@@ -165,14 +167,21 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 
 	}
 	public void samplePlayerInit(){
+		AudioInputStream as = null;
 		String	audioFile = files.getSelectedItem().toString();
-		String sourceFile ="audio/" + audioFile;
+		InputStream sourceStream = finder.findInputStream("/audio/"+audioFile);
+		
 		Sample sample = null;
 		try {
-			sample = new Sample(sourceFile);
+			sample = new Sample(sourceStream);
+			System.out.println(sample.getLength());
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
+			System.out.println("could not find " + audioFile );
 			e1.printStackTrace();
+		} catch (UnsupportedAudioFileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		ac = new AudioContext();
 		sp = new SamplePlayer(ac, sample);
@@ -195,22 +204,13 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	}
 	
 			
-	public JComboBox buildDropDown(){
-		String audioFiles[] ={"General Grevious.wav", "underminers-drumloop.wav","VeilofShadows-Outro.wav"};
-		contentManager = new SampleManager();
-		for(int i = 0; i < audioFiles.length;i++){
-			try {
-				contentManager.addToGroup("audio/"+audioFiles[i], new Sample("audio/"+audioFiles[i]));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		JComboBox fileSelect = new JComboBox(audioFiles);
+	public JComboBox<String> buildDropDown(){
+		String audioFiles[] ={"GeneralGrevious.wav", "underminers-drumloop.wav","VeilofShadows-Outro.wav"};
+
+		JComboBox<String> fileSelect = new JComboBox<>(audioFiles);
 		fileSelect.addActionListener(this);
 		return fileSelect;
-		
+	
 	}
 	
 	
@@ -225,7 +225,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		
 		finder = ResourceFinder.createInstance(this);
     	ImageFactory imgFactory = new ImageFactory(finder);
-    	Image eqIcon= imgFactory.createBufferedImage("../img/eqText.png", 2);
+    	Image eqIcon= imgFactory.createBufferedImage("/img/eqText.png", 2);
     	
     	Icon eqImg = new ImageIcon(eqIcon.getScaledInstance(100,70, 0));
 		
@@ -337,14 +337,19 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
-	    if(files.hasFocus()){
-	    	ac.stop();
-	    }
+		
 	    
-	    String	audioFile = "audio/" + files.getSelectedItem().toString();
+	    String	audioFile = files.getSelectedItem().toString();
+	    InputStream sourceStream = finder.findInputStream("/audio/"+audioFile);
+
+		
 		Sample sample = null;
-		sample = SampleManager.fromGroup(audioFile, 1);
-	
+		try {
+			sample = new Sample(sourceStream);
+		} catch (IOException | UnsupportedAudioFileException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	
 		if(files.hasFocus()){
 			ac.stop();
@@ -358,6 +363,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			sp.setSample(sample);
 		    
 		}
+	
 			
 		if(e.getSource().equals(playbutton))
 		{
@@ -409,23 +415,19 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		{
 			if(hpfOn == 0){
 				System.out.println("armed");
-				hpf.setFrequency(16000.0f);
-				
-				
-				System.out.println(hpfGain.getValue());
+				float frequency = filterFreqHPF.getNumber().floatValue();
+				hpf.setFrequency(frequency);
+
+				System.out.println("HPF Gain value " + hpfGain.getValue());
 				hpfOn = 1;
 			}
 			else{
 				hpf.setFrequency(0.0f);
-				hpfGain.setValue(0.1f);
+				hpfGain.setValue(hpfGain.getValue() - 0.80f);
 				hpfOn = 0;
 			}
 			sp.start();
 		}
-	
-		
-		
-
 	}
 	
 
@@ -440,7 +442,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		if(e.getSource().equals(volumeSlider)){
 			currVol = volumeSlider.getValue();
 			if(prevVol < currVol){
-				if(g.getGain() < 1.0f)
+				if(g.getGain() < 0.9f)
 					g.setGain(g.getGain() + 0.10f);
 			}
 			else
@@ -449,8 +451,14 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 					g.setGain(g.getGain()  - 0.10f);
 			}
 		}
+<<<<<<< HEAD
 		System.out.println(g.getGain());
 	    	
+=======
+	
+		System.out.println(g.getGain());
+
+>>>>>>> acad2f1c2667f447d30ee4c9f53fb3c2d2d1aa3d
 	}
 
 	public void updateLevel(float level){
