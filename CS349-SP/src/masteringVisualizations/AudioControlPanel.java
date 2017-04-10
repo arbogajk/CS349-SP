@@ -415,23 +415,19 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		{
 			if(hpfOn == 0){
 				System.out.println("armed");
-				hpf.setFrequency(16000.0f);
-				
-				
-				System.out.println(hpfGain.getValue());
+				float frequency = filterFreqHPF.getNumber().floatValue();
+				hpf.setFrequency(frequency);
+
+				System.out.println("HPF Gain value " + hpfGain.getValue());
 				hpfOn = 1;
 			}
 			else{
 				hpf.setFrequency(0.0f);
-				hpfGain.setValue(0.1f);
+				hpfGain.setValue(hpfGain.getValue() - 0.80f);
 				hpfOn = 0;
 			}
 			sp.start();
 		}
-	
-		
-		
-
 	}
 	
 
@@ -446,7 +442,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		if(e.getSource().equals(volumeSlider)){
 			currVol = volumeSlider.getValue();
 			if(prevVol < currVol){
-				if(g.getGain() < 1.0f)
+				if(g.getGain() < 0.9f)
 					g.setGain(g.getGain() + 0.10f);
 			}
 			else
@@ -456,13 +452,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			}
 		}
 	
-		
-		
-		
 		System.out.println(g.getGain());
-	    	
-	
-		
+
 	}
 
 	public void updateLevel(float level){
