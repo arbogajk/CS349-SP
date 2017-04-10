@@ -67,7 +67,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private ResourceFinder finder;
 	
 	private Color jmuPurple,jmuGold;
-	private Font font = new Font("Times New Roman",Font.BOLD,16);;
+	private Font font = new Font("Times New Roman",Font.BOLD,16);
+	private Font fontVolume = new Font("Times New Roman",Font.BOLD,16);
 	private Font title = new Font("Times New Roman",Font.BOLD,18);
 
 
@@ -86,13 +87,12 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private JButton playbutton, pausebutton, stopbutton;
 
 	
-    private AudioContext ac;
-    private SamplePlayer sp;
-	private Gain g;
-	private OnePoleFilter lpf,hpf;			//for low pass filter
-	private SampleManager contentManager;
-	private Glide lpfGain, hpfGain;
-	private JPanel eqPanel;
+    private AudioContext ac;				//An audio context
+    private SamplePlayer sp;				//The audio player that takes sampled content
+	private Gain g;							//Gain object for the overall master volume
+	private OnePoleFilter lpf,hpf;			//for low/high pass filter
+	private Glide lpfGain, hpfGain;			//Glide objects for gaining the low/high pass filters
+	private JPanel eqPanel;					//Panel for the EQ stuff
 	
 	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
 	private JSpinner lpfSpinner, hpfSpinner;
@@ -116,7 +116,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	jmuPurple = new Color(69,0,132);
     	this.setBackground(jmuPurple);
     	jmuGold = new Color(203,182,119);
-    	
+
     	
     	files = buildDropDown();
     	files.setBounds(210, 75, 200, 20);
@@ -141,13 +141,15 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	volumeSlider.setSnapToTicks(true);
     	volumeSlider.setPaintTicks(true);
     	volumeSlider.setPaintLabels(true);
-    	volumeSlider.setFont(font);
+    	volumeSlider.setFont(fontVolume);
     	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
     	volumeSlider.setBackground(jmuPurple);
     	volumeSlider.setBounds(425, 20, 100, 150);
+    	volumeSlider.setForeground(jmuGold);
     	
     	JLabel volumeLabel = new JLabel("Volume");
     	volumeLabel.setFont(font);
+    	volumeLabel.setForeground(jmuGold);
     	volumeLabel.setBounds(450,170,70,30);
     	
     	volume = new JProgressBar(JProgressBar.VERTICAL,0,1);
@@ -185,12 +187,12 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		}
 		ac = new AudioContext();
 		sp = new SamplePlayer(ac, sample);
-		g = new Gain(ac, 2, 0.25f);
+		g = new Gain(ac, 2, 0.50f);
 		g.addInput(sp);
 		ac.out.addInput(g);
-		lpfGain = new Glide(ac,0.2f);
-		hpfGain = new Glide(ac,0.2f);
-	    sp.setKillOnEnd(false);
+		lpfGain = new Glide(ac,0.0f);
+		hpfGain = new Glide(ac,0.0f);
+	    sp.setKillOnEnd(true);
 	    
 		lpf = new OnePoleFilter(ac,0.0f);
 		hpf = new OnePoleFilter(ac,0.0f);
@@ -200,7 +202,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		hpf.addInput(sp);
 		ac.out.addInput(lpf);
 		ac.out.addInput(hpf);
-		
+	
 	}
 	
 			
@@ -395,8 +397,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 				System.out.println("armed");
 				float frequency = filterFreqLPF.getNumber().floatValue();
 				lpf.setFrequency(frequency);
-				
-			
+				lpfGain.setValue(0.0f);
+				lpfGain.start();
 				lpfOn = 1;
 			
 			}
@@ -404,7 +406,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			{
 				
 				lpf.setFrequency(0.0f);
-			
+				lpfGain.setValue(0.0f);
+				lpfGain.start();
 				lpfOn = 0;
 			}
 		
@@ -417,13 +420,16 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 				System.out.println("armed");
 				float frequency = filterFreqHPF.getNumber().floatValue();
 				hpf.setFrequency(frequency);
-
+				hpfGain.setValueImmediately(0.0f);
+				hpfGain.start();
 				System.out.println("HPF Gain value " + hpfGain.getValue());
 				hpfOn = 1;
 			}
 			else{
 				hpf.setFrequency(0.0f);
-				hpfGain.setValue(hpfGain.getValue() - 0.80f);
+				hpfGain.setValue(0.0f);
+				
+				hpfGain.start();
 				hpfOn = 0;
 			}
 			sp.start();
@@ -447,8 +453,10 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			}
 			else
 			{
-				
+				if(g.getGain() > 0){
 					g.setGain(g.getGain()  - 0.10f);
+					
+				}
 			}
 		}
 
