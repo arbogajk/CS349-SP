@@ -11,11 +11,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 
+
 // Multimedia Library
 import app.*;
 import io.*;
 import masteringVisualizations.AudioControlPanel;
-import masteringVisualizations.SpectrumOscViewMaker;
+import masteringVisualizations.OscAnimationStage;
 import visual.*;
 import visual.dynamic.described.DescribedSprite;
 import visual.dynamic.described.SampledSprite;
@@ -61,9 +62,9 @@ public class MasteringApp extends AbstractMultimediaApp
     	contentPane.add(eq);
     	
     	// Setup the Visualization
-    	Stage stage = new Stage(50);
-    	SpectrumOscViewMaker sovm = new SpectrumOscViewMaker(stage);
-    	VisualizationView view = sovm.getView();
+    	Stage stage = new OscAnimationStage(1);
+    	//SpectrumOscViewMaker sovm = new SpectrumOscViewMaker(stage);
+    	VisualizationView view = stage.getView();
     	view.setBounds(0, 0, 600, 300);
     	contentPane.add(view);
     	stage.start();

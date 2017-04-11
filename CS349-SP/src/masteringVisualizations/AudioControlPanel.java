@@ -88,8 +88,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 
 	
 
-  private AudioContext ac;				//An audio context
-  private SamplePlayer sp;				//The audio player that takes sampled content
+  private static AudioContext ac;				//An audio context
+  private static SamplePlayer sp;				//The audio player that takes sampled content
 	private Gain g;							//Gain object for the overall master volume
 	private OnePoleFilter lpf,hpf;			//for low/high pass filter
 	private Glide lpfGain, hpfGain;			//Glide objects for gaining the low/high pass filters
@@ -169,6 +169,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	samplePlayerInit();
 
 	}
+	
 	public void samplePlayerInit(){
 		AudioInputStream as = null;
 		String	audioFile = files.getSelectedItem().toString();
@@ -469,6 +470,26 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		
 		
 		
+	}
+	
+	/**
+	 * Getter for the AudioContext
+	 * 
+	 * @return the AudioContext
+	 */
+	public static AudioContext getAC()
+	{
+		return ac;
+	}
+	
+	/**
+	 * Getter for the AudioContext
+	 * 
+	 * @return the AudioContext
+	 */
+	public static SamplePlayer getSP()
+	{
+		return sp;
 	}
 	
 }
