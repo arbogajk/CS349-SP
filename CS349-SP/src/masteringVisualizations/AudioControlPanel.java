@@ -66,42 +66,38 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private static final long serialVersionUID = 1L;
 	private ResourceFinder finder;
 	
-	private Color jmuPurple,jmuGold;
+	private Color jmuPurple = new Color(69,0,132);
+	private Color jmuGold = new Color(203,182,119);
 	private Font font = new Font("Times New Roman",Font.BOLD,16);
 	private Font fontVolume = new Font("Times New Roman",Font.BOLD,16);
 	private Font title = new Font("Times New Roman",Font.BOLD,18);
 
 
 	private int currVol, prevVol;
-	private int lpfOn =0;
-	private int hpfOn =0;
-	public static Clip clip; 
-	public static BufferedSound bs;
+	
+
 	
 	
 	private JSlider volumeSlider;
-	private JSlider s250,s800,s25,s8;
+	private EQPanel eqPanel;
 	private JProgressBar volume;
 	private JComboBox<String> files;
-	private JToggleButton lpfButton, hpfButton;
-	private JButton playbutton, pausebutton, stopbutton;
+	
+	private JToggleButton playbutton, pausebutton, stopbutton;
 
 	
 
-  private static AudioContext ac;				//An audio context
-  private static SamplePlayer sp;				//The audio player that takes sampled content
+	private static AudioContext ac;				//An audio context
+	private static SamplePlayer sp;				//The audio player that takes sampled content
 	private Gain g;							//Gain object for the overall master volume
-	private OnePoleFilter lpf,hpf;			//for low/high pass filter
-	private Glide lpfGain, hpfGain;			//Glide objects for gaining the low/high pass filters
-	private JPanel eqPanel;					//Panel for the EQ stuff
+		
 	
-	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
-	private JSpinner lpfSpinner, hpfSpinner;
 	
 	public AudioControlPanel(){
-		super();
+		super();		
 		setLayout(null);
-		setBounds(0, 520, 800, 250);
+		setBounds(0, 300, 600, 550);
+		setBackground(jmuPurple);
 		
 	
     	finder = ResourceFinder.createInstance(this);
@@ -114,25 +110,21 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	Icon pause = new ImageIcon(pauseIcon.getScaledInstance(50, 50, 0));
     	Icon stop = new ImageIcon(stopIcon.getScaledInstance(50, 50, 0));
     	
-    	jmuPurple = new Color(69,0,132);
-    	this.setBackground(jmuPurple);
-    	jmuGold = new Color(203,182,119);
 
-    	
     	files = buildDropDown();
-    	files.setBounds(210, 75, 200, 20);
+    	files.setBounds(210, 400, 200, 20);
     	
-    	playbutton = new JButton(play);
+    	playbutton = new JToggleButton(play);
     	playbutton.setBounds(5,(int)files.getBounds().getMaxY() - 20,60,60);
     	
     	playbutton.addActionListener(this);
     	
-    	pausebutton = new JButton(pause);
+    	pausebutton = new JToggleButton(pause);
     	pausebutton.setBounds(65,(int)files.getBounds().getMaxY() - 20,60,60);
     	pausebutton.addActionListener(this);
     	playbutton.setBackground(jmuPurple);
     	
-    	stopbutton = new JButton(stop);
+    	stopbutton = new JToggleButton(stop);
     	stopbutton.setBounds(125,(int)files.getBounds().getMaxY() - 20,60,60);
     	stopbutton.addActionListener(this);
     	
@@ -145,19 +137,21 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	volumeSlider.setFont(fontVolume);
     	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
     	volumeSlider.setBackground(jmuPurple);
-    	volumeSlider.setBounds(425, 20, 100, 150);
+    	volumeSlider.setBounds(425, 335, 100, 150);
     	volumeSlider.setForeground(jmuGold);
     	
     	JLabel volumeLabel = new JLabel("Volume");
     	volumeLabel.setFont(font);
     	volumeLabel.setForeground(jmuGold);
-    	volumeLabel.setBounds(450,170,70,30);
+    	volumeLabel.setBounds(450,345,70,30);
     	
     	volume = new JProgressBar(JProgressBar.VERTICAL,0,1);
     	volume.setValue(0);
-    	volume.setBounds(550, 20, 40, 150);
+    	volume.setBounds(550, 335, 40, 150);
  
-    
+    	samplePlayerInit();
+    	
+      	
     	add(volumeSlider);
     	add(volumeLabel);
     	add(files);
@@ -166,8 +160,11 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	add(pausebutton);
     	add(stopbutton);
     	
-    	samplePlayerInit();
-
+    	eqPanel = new EQPanel();
+    	eqPanel.setLayout(null);
+    	eqPanel.setBounds(0,0,600,300);
+      	add(eqPanel);
+    
 	}
 	
 	public void samplePlayerInit(){
@@ -192,18 +189,10 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		g = new Gain(ac, 2, 0.50f);
 		g.addInput(sp);
 		ac.out.addInput(g);
-		lpfGain = new Glide(ac,0.0f);
-		hpfGain = new Glide(ac,0.0f);
+		
 	    sp.setKillOnEnd(false);
 	    
-		lpf = new OnePoleFilter(ac,0.0f);
-		hpf = new OnePoleFilter(ac,0.0f);
-		lpf.addInput(lpfGain);
-		hpf.addInput(hpfGain);
-		lpf.addInput(sp);
-		hpf.addInput(sp);
-		ac.out.addInput(lpf);
-		ac.out.addInput(hpf);
+		
 	
 	}
 	
@@ -219,111 +208,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	
 	
 	
-	public JPanel eqControlPanel(){
-		eqPanel = new JPanel();
-	    	
-		eqPanel.setBackground(jmuGold);
-		eqPanel.setLayout(null);
-		eqPanel.setBounds(0,300,600,300);
-		eqPanel.setBorder(new LineBorder(jmuPurple,5));
-		
-		finder = ResourceFinder.createInstance(this);
-    	ImageFactory imgFactory = new ImageFactory(finder);
-    	Image eqIcon= imgFactory.createBufferedImage("/img/eqText.png", 2);
-    	
-    	Icon eqImg = new ImageIcon(eqIcon.getScaledInstance(100,70, 0));
-		
-		JPanel sliderPanel = new JPanel();
-		sliderPanel.setLayout(null);
-		sliderPanel.setBounds(20,30,550,235);
-   
-    	JLabel panelTitle = new JLabel(eqImg);
-    	panelTitle.setBounds(((int)sliderPanel.getBounds().getCenterX()) - 75,15,110,80);
-    	JLabel f250,f800,f25,f8;
-    	
-    	f250 = new JLabel("250 Hz");
-    	f800 = new JLabel("800 Hz");
-    	f25 = new JLabel("2.5 kHz");
-    	f8 = new JLabel("8 kHz");
-    	
-    	
-		s250 = new JSlider(JSlider.VERTICAL,-12,12,0);
-		s250.setMajorTickSpacing(3);
-		s250.setPaintLabels(true);
-		s250.setPaintTicks(true);
-		s250.setSnapToTicks(true);
-		s250.addChangeListener(this);
-		s250.setBounds(40,50,50,170);
-		s250.setForeground(jmuPurple);
-		f250.setBounds((int)s250.getBounds().getMinX() + 4,(int)s250.getBounds().getMaxY() -6,50,30);
-		
-		
-		
-		s800 = new JSlider(JSlider.VERTICAL,-12,12,0);
-		s800.setMajorTickSpacing(3);
-		s800.setPaintLabels(true);
-		s800.setPaintTicks(true);
-		s800.setSnapToTicks(true);
-		s800.addChangeListener(this);
-		s800.setForeground(jmuPurple);
-		s800.setBounds(120,50,50,170);
-		f800.setBounds((int)s800.getBounds().getMinX() + 4,(int)s800.getBounds().getMaxY() - 6,50,30);
-		
-		s25= new JSlider(JSlider.VERTICAL,-12,12,0);
-		s25.setMajorTickSpacing(3);
-		s25.setPaintLabels(true);
-		s25.setPaintTicks(true);
-		s25.setSnapToTicks(true);
-		s25.addChangeListener(this);
-		s25.setForeground(jmuPurple);
-		s25.setBounds(200,50,50,170);
-		f25.setBounds((int)s25.getBounds().getMinX() + 4,(int)s25.getBounds().getMaxY() - 6,50,30);
-		s8= new JSlider(JSlider.VERTICAL,-12,12,0);
-		s8.setMajorTickSpacing(3);
-		s8.setPaintLabels(true);
-		s8.setPaintTicks(true);
-		s8.setSnapToTicks(true);
-		s8.addChangeListener(this);
-		s8.setForeground(jmuPurple);
-		s8.setBounds(270,50,50,170);
-		f8.setBounds((int)s8.getBounds().getMinX() + 4,(int)s8.getBounds().getMaxY() - 6,50,30);
-		
-		lpfButton = new JToggleButton("LPF");
-		hpfButton = new JToggleButton("HPF");
-		lpfButton.addActionListener(this);
-		hpfButton.addActionListener(this);
-		
-		lpfButton.setBounds(350,20,100,30);
-		hpfButton.setBounds(350,80,100,30);
-		
-		hpfSpinner = new JSpinner();
-		lpfSpinner = new JSpinner();
-		filterFreqLPF = new SpinnerNumberModel(100,20, 1000,10);
-		filterFreqHPF = new SpinnerNumberModel(16000,1000,20000,100);
 	
-		lpfSpinner.setModel(filterFreqLPF);
-		lpfSpinner.setBounds((int)lpfButton.getBounds().getMaxX() + 6, (int)lpfButton.getBounds().getY(),70,30);
-		hpfSpinner.setModel(filterFreqHPF);
-		hpfSpinner.setBounds((int)hpfButton.getBounds().getMaxX() + 6, (int)hpfButton.getBounds().getY(),70,30);
-		
-		
-		eqPanel.add(panelTitle);
-		sliderPanel.add(s250);
-		sliderPanel.add(f250);
-		sliderPanel.add(s800);
-		sliderPanel.add(f800);
-		sliderPanel.add(s25);
-		sliderPanel.add(f25);
-		sliderPanel.add(s8);
-		sliderPanel.add(f8);
-		sliderPanel.add(lpfButton);
-		sliderPanel.add(hpfButton);
-		sliderPanel.add(lpfSpinner);
-		sliderPanel.add(hpfSpinner);
-		eqPanel.add(sliderPanel);
-		
-		return eqPanel;
-	}
 	
 	/** This method should toggle the color of the hpf and lpf buttons
 	 *  when they are clicked and set the color back to default when clicked again.
@@ -340,9 +225,6 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
-		
-	    
 	    String	audioFile = files.getSelectedItem().toString();
 	    InputStream sourceStream = finder.findInputStream("/audio/"+audioFile);
 
@@ -357,15 +239,9 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	
 		if(files.hasFocus()){
 			ac.stop();
-			lpf.setFrequency(0.0f);
-			hpf.setFrequency(0.0f);
-			lpf.setValue(0.0f);
-			hpf.setValue(0.0f);
 			sp.reset();
-			lpf.setFrequency(0.0f);
-			hpf.setFrequency(0.0f);
 			sp.setSample(sample);
-		    
+			eqPanel.resetFilters();
 		}
 	
 			
@@ -392,50 +268,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		}
 		
 		/************************************* EQ Low/High Pass Filters ********************************************************/
-		else if(e.getSource().equals(lpfButton))
-		{
 		
-			if(lpfOn == 0){
-				System.out.println("armed");
-				float frequency = filterFreqLPF.getNumber().floatValue();
-				lpf.setFrequency(frequency);
-				lpfGain.setValue(0.0f);
-				lpfGain.start();
-				lpfOn = 1;
-			
-			}
-			else
-			{
-				
-				lpf.setFrequency(0.0f);
-				lpfGain.setValue(0.0f);
-				lpfGain.start();
-				lpfOn = 0;
-			}
-		
-			sp.start();
-
-		}
-		else if(e.getSource().equals(hpfButton))
-		{
-			if(hpfOn == 0){
-				System.out.println("armed");
-				float frequency = filterFreqHPF.getNumber().floatValue();
-				hpf.setFrequency(frequency);
-				hpfGain.setValueImmediately(0.0f);
-				hpfGain.start();
-				System.out.println("HPF Gain value " + hpfGain.getValue());
-				hpfOn = 1;
-			}
-			else{
-				hpf.setFrequency(0.0f);
-				hpfGain.setValue(0.0f);
-				
-				hpfGain.start();
-				hpfOn = 0;
-			}
-			sp.start();
-		}
 	}
 	
 

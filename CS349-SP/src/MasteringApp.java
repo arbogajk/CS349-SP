@@ -56,12 +56,12 @@ public class MasteringApp extends AbstractMultimediaApp
     	contentPane = (JPanel)rootPaneContainer.getContentPane();
     	contentPane.setLayout(null);
     	AudioControlPanel audioControls = new AudioControlPanel();
-    	audioControls.setBounds(0,600,600,200);
+    	audioControls.setBounds(0,300,600,500);
     	//EQControlPanel eqPanel = new EQControlPanel();
     	contentPane.add(audioControls);
     	
-    	JPanel eq = audioControls.eqControlPanel();
-    	contentPane.add(eq);
+//    	JPanel eq = audioControls.eqControlPanel();
+//    	contentPane.add(eq);
     	
     	JPanel fvp = new FrequencyVizPanel();
     	fvp.setBounds(0, 0, 600, 300);
