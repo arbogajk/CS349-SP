@@ -28,17 +28,17 @@ import visual.statik.described.Content;
  * @version V1 4.9.17
  *
  */
-public class OscAnimationStage extends Stage  
+public class SpectrumAnimationStage extends Stage  
 {
 	
 	public static final int VIEW_WIDTH = 600;
-	public static final int VIEW_HEIGHT = 600;
+	public static final int VIEW_HEIGHT = 300;
 	
 	private PowerSpectrum ps;
 	private AudioContext ac;
 	private Content bg;
 	
-	public OscAnimationStage(int arg0) 
+	public SpectrumAnimationStage(int arg0) 
 	{
 		super(arg0);
 		
@@ -86,14 +86,17 @@ public class OscAnimationStage extends Stage
    * @param y2
    * @return A content representation of a line
    */
-  private Content createLine(Paint p, double x1, double y1, double x2, double y2)
+  private Content createThinBar(Paint p, double x1, double y1, double x2, double y2)
   {
   	Path2D.Float path = new Path2D.Float();
   	path.moveTo(x1, y1);
   	path.lineTo(x2, y2);
+  	path.lineTo(x2+1.0, y2);
+  	path.lineTo(x2+1.0, y1);
+  	path.lineTo(x1, y1);
   	path.closePath();
   	
-  	return new Content(path, Color.WHITE, p, null);
+  	return new Content(path, null, p, null);
   }
   
   /**
@@ -117,14 +120,14 @@ public class OscAnimationStage extends Stage
   					VIEW_HEIGHT), VIEW_HEIGHT - 1);
   			
   			// Create the GradientPaint
-  			//GradientPaint gp = new GradientPaint(x, VIEW_HEIGHT, Color.GREEN,
-  															//x, VIEW_HEIGHT - barHeight, Color.RED);
+  			GradientPaint gp = new GradientPaint(x, VIEW_HEIGHT, Color.GREEN,
+  															x, VIEW_HEIGHT - barHeight, Color.RED);
   			
   			
   			
   			// draw a vertical line corresponding to the frequency
   			// represented by this x-position
-  			add(createLine(Color.ORANGE, x, VIEW_HEIGHT, x, VIEW_HEIGHT - barHeight));
+  			add(createThinBar(gp, x, VIEW_HEIGHT, x, VIEW_HEIGHT - barHeight));
   		}
   	}
   	System.out.println("AFTER DRAWING FEATURES");
