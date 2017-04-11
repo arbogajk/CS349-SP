@@ -123,8 +123,6 @@ public class SpectrumAnimationStage extends Stage
   			GradientPaint gp = new GradientPaint(x, VIEW_HEIGHT, Color.GREEN,
   															x, VIEW_HEIGHT - barHeight, Color.RED);
   			
-  			
-  			
   			// draw a vertical line corresponding to the frequency
   			// represented by this x-position
   			add(createThinBar(gp, x, VIEW_HEIGHT, x, VIEW_HEIGHT - barHeight));

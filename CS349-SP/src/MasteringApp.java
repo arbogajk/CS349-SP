@@ -12,10 +12,12 @@ import javax.swing.event.ChangeListener;
 
 
 
+
 // Multimedia Library
 import app.*;
 import io.*;
 import masteringVisualizations.AudioControlPanel;
+import masteringVisualizations.FrequencyVizPanel;
 import masteringVisualizations.SpectrumAnimationStage;
 import visual.*;
 import visual.dynamic.described.DescribedSprite;
@@ -61,11 +63,8 @@ public class MasteringApp extends AbstractMultimediaApp
     	JPanel eq = audioControls.eqControlPanel();
     	contentPane.add(eq);
     	
-    	// Setup the Visualization
-    	Stage stage = new SpectrumAnimationStage(1);
-    	VisualizationView view = stage.getView();
-    	view.setBounds(0, 0, 600, 300);
-    	contentPane.add(view);
-    	stage.start();
+    	JPanel fvp = new FrequencyVizPanel();
+    	fvp.setBounds(0, 0, 600, 300);
+    	contentPane.add(fvp);
     }	
 }
