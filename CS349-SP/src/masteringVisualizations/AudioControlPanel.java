@@ -86,8 +86,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private JButton playbutton, pausebutton, stopbutton;
 
 	
-    private AudioContext ac;
-    private SamplePlayer sp;
+  private AudioContext ac;
+  private SamplePlayer sp;
 	private Gain g;
 	private OnePoleFilter lpf,hpf;			//for low pass filter
 	private SampleManager contentManager;
