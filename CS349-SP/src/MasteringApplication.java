@@ -20,7 +20,7 @@ public class   MasteringApplication
     public static void main(String[] args) throws Exception
     {
        WIDTH = WIDTH / 3;
-       HEIGHT = HEIGHT - 100;
+       HEIGHT = HEIGHT - 200;
        SwingUtilities.invokeAndWait(
           new MasteringApplication(args, (int)(WIDTH), (int)HEIGHT));
     }

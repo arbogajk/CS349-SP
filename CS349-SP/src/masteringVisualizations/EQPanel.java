@@ -105,9 +105,9 @@ private ResourceFinder finder;
 		s250.setPaintTicks(true);
 		s250.setSnapToTicks(true);
 		s250.addChangeListener(this);
-		s250.setBounds(40,50,50,170);
+		s250.setBounds(5,(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		s250.setForeground(jmuPurple);
-		f250.setBounds((int)s250.getBounds().getMinX() + 4,(int)s250.getBounds().getMaxY() -6,50,30);
+		f250.setBounds((int)s250.getBounds().getMinX() + 6,(int)s250.getBounds().getMaxY() + 6,40,20);
 		
 		s800 = new JSlider(JSlider.VERTICAL,-12,12,0);
 		s800.setMajorTickSpacing(3);
@@ -116,8 +116,9 @@ private ResourceFinder finder;
 		s800.setSnapToTicks(true);
 		s800.addChangeListener(this);
 		s800.setForeground(jmuPurple);
-		s800.setBounds(120,50,50,170);
-		f800.setBounds((int)s800.getBounds().getMinX() + 4,(int)s800.getBounds().getMaxY() - 6,50,30);
+		s800.setBounds((int)s250.getBounds().getMaxX() + 20,(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
+				(int)(sliderPanel.getBounds().getMaxY()/1.5));
+		f800.setBounds((int)s800.getBounds().getMinX() + 6,(int)s800.getBounds().getMaxY() + 1,50,30);
 		
 		s25= new JSlider(JSlider.VERTICAL,-12,12,0);
 		s25.setMajorTickSpacing(3);
@@ -126,8 +127,9 @@ private ResourceFinder finder;
 		s25.setSnapToTicks(true);
 		s25.addChangeListener(this);
 		s25.setForeground(jmuPurple);
-		s25.setBounds(200,50,50,170);
-		f25.setBounds((int)s25.getBounds().getMinX() + 4,(int)s25.getBounds().getMaxY() - 6,50,30);
+		s25.setBounds((int)s800.getBounds().getMaxX() + 20,(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
+		(int)(sliderPanel.getBounds().getMaxY()/1.5));
+		f25.setBounds((int)s25.getBounds().getMinX() + 6,(int)s25.getBounds().getMaxY() + 1,50,30);
 		
 		s8= new JSlider(JSlider.VERTICAL,-12,12,0);
 		s8.setMajorTickSpacing(3);
@@ -136,16 +138,17 @@ private ResourceFinder finder;
 		s8.setSnapToTicks(true);
 		s8.addChangeListener(this);
 		s8.setForeground(jmuPurple);
-		s8.setBounds(270,50,50,170);
-		f8.setBounds((int)s8.getBounds().getMinX() + 4,(int)s8.getBounds().getMaxY() - 6,50,30);
+		s8.setBounds((int)s25.getBounds().getMaxX() +20,(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
+				(int)(sliderPanel.getBounds().getMaxY()/1.5));
+		f8.setBounds((int)s8.getBounds().getMinX() + 6,(int)s8.getBounds().getMaxY() + 1,50,30);
 		
 		lpfButton = new JToggleButton("LPF");
 		hpfButton = new JToggleButton("HPF");
 		lpfButton.addActionListener(this);
 		hpfButton.addActionListener(this);
 		
-		lpfButton.setBounds(350,20,100,30);
-		hpfButton.setBounds(350,80,100,30);
+		lpfButton.setBounds(WIDTH - 200,20,60,30);
+		hpfButton.setBounds(WIDTH - 200,80,60,30);
 		
 		hpfSpinner = new JSpinner();
 		lpfSpinner = new JSpinner();
