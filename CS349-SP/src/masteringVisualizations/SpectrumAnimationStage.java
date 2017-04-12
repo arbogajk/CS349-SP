@@ -31,17 +31,18 @@ import visual.statik.described.Content;
 public class SpectrumAnimationStage extends Stage  
 {
 	
-	public static final int VIEW_WIDTH = 600;
-	public static final int VIEW_HEIGHT = 300;
+	public static int VIEW_WIDTH;
+	public static int VIEW_HEIGHT;
 	
 	private PowerSpectrum ps;
 	private AudioContext ac;
 	private Content bg;
 	
-	public SpectrumAnimationStage(int arg0) 
+	public SpectrumAnimationStage(int arg0,int width, int height) 
 	{
 		super(arg0);
-		
+		VIEW_WIDTH = width;
+		VIEW_HEIGHT = height;
 		bg = new Content(createBackground(), null, Color.BLACK, null);
 		add(bg);
 		
@@ -105,10 +106,10 @@ public class SpectrumAnimationStage extends Stage
   private void draw()
   {
   	float[] features = ps.getFeatures();
-  	System.out.println("BEFORE DRAWING FEATURES");
+  //	System.out.println("BEFORE DRAWING FEATURES");
   	if (features != null)
   	{
-  		System.out.println("THE FEATURES ARE NOT NULL");
+  //		System.out.println("THE FEATURES ARE NOT NULL");
   		for(int x = 0; x < VIEW_WIDTH; x++)
   		{
   			// figure out which featureIndex corresponds to this x-
@@ -128,7 +129,7 @@ public class SpectrumAnimationStage extends Stage
   			add(createThinBar(gp, x, VIEW_HEIGHT, x, VIEW_HEIGHT - barHeight));
   		}
   	}
-  	System.out.println("AFTER DRAWING FEATURES");
+ // 	System.out.println("AFTER DRAWING FEATURES");
   }
   
   /**

@@ -76,7 +76,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private int currVol, prevVol;
 	
 
-	
+	private JPanel controlsPanel;
 	
 	private JSlider volumeSlider;
 	private EQPanel eqPanel;
@@ -91,15 +91,19 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private static SamplePlayer sp;				//The audio player that takes sampled content
 	private Gain g;							//Gain object for the overall master volume
 		
+	private final int WIDTH;
+	private final int HEIGHT;
 	
-	
-	public AudioControlPanel(){
-		super();		
+	public AudioControlPanel(int width, int height){
+		super();	
+		WIDTH = width;
+		HEIGHT = height;
+		
 		setLayout(null);
-		setBounds(0, 300, 600, 550);
+		setBounds(0,0, WIDTH, HEIGHT);
 		setBackground(jmuPurple);
 		
-	
+
     	finder = ResourceFinder.createInstance(this);
     	ImageFactory imgFactory = new ImageFactory(finder);
     	Image pIcon = imgFactory.createBufferedImage("/img/playButton.png", 4);
@@ -110,9 +114,25 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	Icon pause = new ImageIcon(pauseIcon.getScaledInstance(50, 50, 0));
     	Icon stop = new ImageIcon(stopIcon.getScaledInstance(50, 50, 0));
     	
-
-    	files = buildDropDown();
-    	files.setBounds(210, 400, 200, 20);
+    	
+    	volume = new JProgressBar(JProgressBar.VERTICAL,0,1);
+    	volume.setValue(0);
+    	volume.setBounds(WIDTH - 50, HEIGHT - 200, 40, 150);
+ 
+    	volumeSlider = new JSlider(JSlider.VERTICAL,0,10,5);
+    	volumeSlider.addChangeListener(this);
+    	volumeSlider.setMajorTickSpacing(1);
+    	volumeSlider.setSnapToTicks(true);
+    	volumeSlider.setPaintTicks(true);
+    	volumeSlider.setPaintLabels(true);
+    	volumeSlider.setFont(fontVolume);
+    	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
+    	volumeSlider.setBackground(jmuPurple);
+    	volumeSlider.setBounds((int)volume.getBounds().getMinX() - 140, (int)volume.getBounds().getY(), 100, 150);
+    	volumeSlider.setForeground(jmuGold);
+    	
+     	files = buildDropDown();
+    	files.setBounds((int)volumeSlider.getBounds().getMinX() - 250, HEIGHT - 100, 200, 20);
     	
     	playbutton = new JToggleButton(play);
     	playbutton.setBounds(5,(int)files.getBounds().getMaxY() - 20,60,60);
@@ -128,30 +148,20 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	stopbutton.setBounds(125,(int)files.getBounds().getMaxY() - 20,60,60);
     	stopbutton.addActionListener(this);
     	
-    	volumeSlider = new JSlider(JSlider.VERTICAL,0,10,5);
-    	volumeSlider.addChangeListener(this);
-    	volumeSlider.setMajorTickSpacing(1);
-    	volumeSlider.setSnapToTicks(true);
-    	volumeSlider.setPaintTicks(true);
-    	volumeSlider.setPaintLabels(true);
-    	volumeSlider.setFont(fontVolume);
-    	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
-    	volumeSlider.setBackground(jmuPurple);
-    	volumeSlider.setBounds(425, 335, 100, 150);
-    	volumeSlider.setForeground(jmuGold);
-    	
+
     	JLabel volumeLabel = new JLabel("Volume");
     	volumeLabel.setFont(font);
     	volumeLabel.setForeground(jmuGold);
-    	volumeLabel.setBounds(450,345,70,30);
+    	volumeLabel.setBounds((int)volumeSlider.getBounds().getCenterX() - 20,(int)volumeSlider.getBounds().getMaxY() + 10,70,30);
     	
-    	volume = new JProgressBar(JProgressBar.VERTICAL,0,1);
-    	volume.setValue(0);
-    	volume.setBounds(550, 335, 40, 150);
- 
     	samplePlayerInit();
     	
-      	
+      
+
+		
+		
+		
+		
     	add(volumeSlider);
     	add(volumeLabel);
     	add(files);
@@ -159,11 +169,6 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	add(playbutton);
     	add(pausebutton);
     	add(stopbutton);
-    	
-    	eqPanel = new EQPanel();
-    	eqPanel.setLayout(null);
-    	eqPanel.setBounds(0,0,600,300);
-      	add(eqPanel);
     
 	}
 	
@@ -241,7 +246,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			ac.stop();
 			sp.reset();
 			sp.setSample(sample);
-			eqPanel.resetFilters();
+			EQPanel.resetFilters();
 		}
 	
 			

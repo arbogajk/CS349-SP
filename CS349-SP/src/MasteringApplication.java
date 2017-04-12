@@ -1,3 +1,5 @@
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.*;
 import java.net.*;
 import javax.swing.*;
@@ -8,6 +10,8 @@ import app.*;
 public class   MasteringApplication
        extends MultimediaApplication
 {
+	public static double WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+	public static double HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
     /**
      * The entry-point of the application
      *
@@ -15,8 +19,10 @@ public class   MasteringApplication
      */
     public static void main(String[] args) throws Exception
     {
+       WIDTH = WIDTH / 3;
+       HEIGHT = HEIGHT - 100;
        SwingUtilities.invokeAndWait(
-          new MasteringApplication(args, 600, 800));
+          new MasteringApplication(args, (int)(WIDTH), (int)HEIGHT));
     }
 	
     /**
@@ -30,5 +36,13 @@ public class   MasteringApplication
                                     int width, int height)
     {
        super(args, new MasteringApp(), width, height);
+    }
+    
+    public static double getWidth(){
+    	return WIDTH;
+    }
+    
+    public static double getHeight(){
+    	return HEIGHT;
     }
 }

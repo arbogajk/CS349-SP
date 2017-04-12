@@ -33,25 +33,31 @@ private ResourceFinder finder;
 	private Font font = new Font("Times New Roman",Font.BOLD,16);
 	private Font fontVolume = new Font("Times New Roman",Font.BOLD,16);
 	private Font title = new Font("Times New Roman",Font.BOLD,18);
-	private int lpfOn =0;
-	private int hpfOn =0;
+	private static int lpfOn =0;
+	private static int hpfOn =0;
 	private JSlider s250,s800,s25,s8;
-	private JToggleButton lpfButton, hpfButton;
+	private static JToggleButton lpfButton, hpfButton;
 	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
 	private JSpinner lpfSpinner, hpfSpinner;
-	private OnePoleFilter lpf,hpf;	
+	private static OnePoleFilter lpf,hpf;	
 	private JPanel sliderPanel,eqPanel;
-	private Gain lpfGain, hpfGain;	
+	private static Gain lpfGain, hpfGain;	
 	
 	public static AudioContext ac;
 	public static SamplePlayer sp;
 	
-	public EQPanel()
+	private final int WIDTH;
+	private final int HEIGHT;
+	
+	public EQPanel(int width, int height)
 	{
 		super();
+		WIDTH = width;
+		HEIGHT = height;
+		
 		setBackground(jmuGold);
 		setLayout(null);
-		setBounds(0,300,600,300);
+		setBounds(0,0,WIDTH,HEIGHT/2);
 		setBorder(new LineBorder(jmuPurple,5));
 		
 		buildEQSliders();
@@ -71,7 +77,7 @@ private ResourceFinder finder;
 		eqPanel = new JPanel();
 		eqPanel.setBackground(jmuGold);
 		eqPanel.setLayout(null);
-		eqPanel.setBounds(0,0,600,350);
+		eqPanel.setBounds(0,0,WIDTH,HEIGHT);
 		eqPanel.setBorder(new LineBorder(jmuPurple,5));
 		
 		finder = ResourceFinder.createInstance(this);
@@ -82,7 +88,7 @@ private ResourceFinder finder;
 		
 		sliderPanel = new JPanel();
 		sliderPanel.setLayout(null);
-		sliderPanel.setBounds(20,20,560,260);
+		sliderPanel.setBounds(20,20,WIDTH - 40, HEIGHT -40);
    
 		JLabel panelTitle = new JLabel(eqImg);
     	panelTitle.setBounds(((int)sliderPanel.getBounds().getCenterX()) - 75,15,110,80);
@@ -186,7 +192,7 @@ private ResourceFinder finder;
 		ac.out.addInput(hpf);
 	}
 	
-	public void resetFilters(){
+	public static void resetFilters(){
 		lpf.setFrequency(0.0f);
 		hpf.setFrequency(0.0f);
 		lpf.setValue(0.0f);
@@ -215,10 +221,7 @@ private ResourceFinder finder;
 				float frequency = filterFreqLPF.getNumber().floatValue();
 				lpf.setFrequency(frequency);
 			
-					lpfGain.setGain(10.0f);
-			
-				
-		
+				lpfGain.setGain(10.0f);
 				lpfGain.start();
 				lpfOn = 1;
 			
@@ -233,7 +236,7 @@ private ResourceFinder finder;
 			}
 		
 			sp.start();
-			ac.start();
+	
 
 		}
 		else if(e.getSource().equals(hpfButton))
@@ -258,7 +261,7 @@ private ResourceFinder finder;
 				hpfOn = 0;
 			}
 			sp.start();
-			ac.start();
+
 		}
 		
 	}

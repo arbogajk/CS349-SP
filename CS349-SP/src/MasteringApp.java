@@ -17,6 +17,7 @@ import javax.swing.event.ChangeListener;
 import app.*;
 import io.*;
 import masteringVisualizations.AudioControlPanel;
+import masteringVisualizations.EQPanel;
 import masteringVisualizations.FrequencyVizPanel;
 import masteringVisualizations.SpectrumAnimationStage;
 import visual.*;
@@ -34,6 +35,10 @@ import visual.statik.sampled.ImageFactory;
 public class MasteringApp extends AbstractMultimediaApp      
 {
 	private JPanel contentPane;
+	
+	public static int MAX_WIDTH = (int)MasteringApplication.getWidth();
+	public static int MAX_HEIGHT = (int)MasteringApplication.getHeight();
+	public static int PANELHEIGHT;
 	
     /**
      * Handle actionPerformed messages
@@ -53,18 +58,37 @@ public class MasteringApp extends AbstractMultimediaApp
      */
     public void init()
     {
+    
     	contentPane = (JPanel)rootPaneContainer.getContentPane();
     	contentPane.setLayout(null);
-    	AudioControlPanel audioControls = new AudioControlPanel();
-    	audioControls.setBounds(0,300,600,500);
-    	//EQControlPanel eqPanel = new EQControlPanel();
-    	contentPane.add(audioControls);
+    	contentPane.setBounds(0, 0, MAX_WIDTH, MAX_HEIGHT);
+    
+    	PANELHEIGHT = (int) MAX_HEIGHT /3;
+    	AudioControlPanel audioControls = new AudioControlPanel(MAX_WIDTH, PANELHEIGHT);
     	
-//    	JPanel eq = audioControls.eqControlPanel();
-//    	contentPane.add(eq);
     	
-    	JPanel fvp = new FrequencyVizPanel();
-    	fvp.setBounds(0, 0, 600, 300);
+    	System.out.println("Max width " + MAX_WIDTH);
+    	System.out.println("Max HEIGHT " + MAX_HEIGHT);
+
+    	System.out.println("Max 3RDS PANEL HEIGHT" + PANELHEIGHT);
+    	
+       	contentPane.add(audioControls);
+
+    	JPanel fvp = new FrequencyVizPanel(MAX_WIDTH,PANELHEIGHT);
+    	
+    	fvp.setBounds(0, 0, MAX_WIDTH, PANELHEIGHT);
+     	
+     	
     	contentPane.add(fvp);
+    	
+    	
+    	EQPanel eqPanel = new EQPanel(MAX_WIDTH,PANELHEIGHT);
+    	eqPanel.setLayout(null);
+    	eqPanel.setBounds(0,(int)fvp.getBounds().getMaxY(),MAX_WIDTH,PANELHEIGHT);
+      	contentPane.add(eqPanel);
+      	audioControls.setBounds(0, (int)eqPanel.getBounds().getMaxY(), MAX_WIDTH, PANELHEIGHT );
+      	
+    	
     }	
+
 }
