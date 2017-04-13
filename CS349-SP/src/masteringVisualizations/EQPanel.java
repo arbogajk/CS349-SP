@@ -21,6 +21,7 @@ import javax.swing.event.ChangeListener;
 import io.ResourceFinder;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.ugens.Gain;
+import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.OnePoleFilter;
 import net.beadsproject.beads.ugens.SamplePlayer;
 import visual.statik.sampled.ImageFactory;
@@ -42,7 +43,7 @@ private ResourceFinder finder;
 	private static OnePoleFilter lpf,hpf;	
 	private JPanel sliderPanel,eqPanel;
 	private static Gain lpfGain, hpfGain;	
-	
+	private static Glide lpfGlide, hpfGlide;
 	public static AudioContext ac;
 	public static SamplePlayer sp;
 	
@@ -183,16 +184,28 @@ private ResourceFinder finder;
 	
 	public void initFilters()
 	{
-		lpfGain = new Gain(ac,2,0.0f);
-		hpfGain = new Gain(ac,2,0.0f);
+		
 		lpf = new OnePoleFilter(ac,0.0f);
 		hpf = new OnePoleFilter(ac,0.0f);
-		lpf.addInput(lpfGain);
-		hpf.addInput(hpfGain);
+	
 		lpf.addInput(sp);
 		hpf.addInput(sp);
-		ac.out.addInput(lpf);
-		ac.out.addInput(hpf);
+		
+		lpfGlide = new Glide(ac, 0.0f, 20);
+		hpfGlide = new Glide(ac, 0.0f, 20);
+		
+		lpfGain = new Gain(ac, 2, lpfGlide);
+		hpfGain = new Gain(ac, 2, hpfGlide);
+		
+		
+		lpfGain.addInput(lpf);
+		hpfGain.addInput(hpf);
+		
+
+	
+		
+		ac.out.addInput(lpfGain);
+		ac.out.addInput(hpfGain);
 	}
 	
 	public static void resetFilters(){
@@ -200,6 +213,8 @@ private ResourceFinder finder;
 		hpf.setFrequency(0.0f);
 		lpf.setValue(0.0f);
 		hpf.setValue(0.0f);
+		lpfGain.setValue(0.0f);
+		hpfGain.setValue(0.0f);
 		lpfOn = 0;
 		hpfOn = 0;
 		lpfButton.setSelected(false);
@@ -224,20 +239,23 @@ private ResourceFinder finder;
 				float frequency = filterFreqLPF.getNumber().floatValue();
 				lpf.setFrequency(frequency);
 			
-				lpfGain.setGain(10.0f);
-				lpfGain.start();
+				lpfGlide.setValue(0.7f);
+			
 				lpfOn = 1;
+				
 			
 			}
 			else
 			{
 				lpf.setFrequency(0.0f);
-				lpfGain.setGain(0.0f);
-				lpfGain.start();
+				lpfGlide.setValue(0.0f);
+		
 				lpfOn = 0;
+			
 				
 			}
-		
+			lpf.start();
+			lpfGain.start();
 			sp.start();
 	
 
@@ -248,21 +266,20 @@ private ResourceFinder finder;
 				System.out.println("armed");
 				float frequency = filterFreqHPF.getNumber().floatValue();
 				hpf.setFrequency(frequency);
-				
-				hpfGain.setGain(-10.0f);
-					
+				hpfGlide.setValue(0.2f);
 			
-				hpfGain.start();
+				
 			
 				hpfOn = 1;
 			}
 			else{
 				hpf.setFrequency(0.0f);
-				hpfGain.setGain(0.0f);
-		
-				hpfGain.start();
+				hpfGlide.setValue(0.0f);
+			
 				hpfOn = 0;
 			}
+			hpfGain.start();
+			lpf.start();
 			sp.start();
 
 		}
