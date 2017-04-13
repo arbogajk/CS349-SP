@@ -50,7 +50,7 @@ private ResourceFinder finder;
 	private static Gain lpfGain, hpfGain, gain250, gain800, gain25, gain8;	
 	private static Glide lpfGlide, hpfGlide, glideGain250, glideGain800,glideGain25, glideGain8;
 	
-	private BiquadFilter peakFilter250, peakFIlter800, peakFilter25, peakFilter8;
+	private BiquadFilter peakFilter250, peakFilter800, peakFilter25, peakFilter8;
 	
 	
 	
@@ -202,8 +202,8 @@ private ResourceFinder finder;
 		lpf.addInput(sp);
 		hpf.addInput(sp);
 		
-		lpfGlide = new Glide(ac, 0.0f, 20);
-		hpfGlide = new Glide(ac, 0.0f, 20);
+		lpfGlide = new Glide(ac, 0.1f, 20);
+		hpfGlide = new Glide(ac, 0.1f, 20);
 		
 		lpfGain = new Gain(ac, 2, lpfGlide);
 		hpfGain = new Gain(ac, 2, hpfGlide);
@@ -216,18 +216,56 @@ private ResourceFinder finder;
 		ac.out.addInput(hpfGain);
 		
 		/* Peak Filters */
-		peakFilter250 = new BiquadFilter(ac, BiquadFilter.BP_PEAK, 250.0f, 0.5f);
-		peakFilter250.addInput(sp);
+		peakFilter250 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
+		peakFilter250.setFrequency(250.0f);
+		peakFilter250.setQ(0.70f);
+		peakFilter250.setGain(0.0f);
+		peakFilter250.addInput(sp);	
+	
+		gain250 = new Gain(ac,2,0.0f);
+		gain250.addInput(peakFilter250);
 		
-		glideGain250 = new Glide(ac, 0.0f, 20);
-		mainGain.addInput(peakFilter250);
-		ac.out.addInput(glideGain250);
-		ac.out.start();
+		//800 Hz ************************
+		peakFilter800 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
+		peakFilter800.setFrequency(800.0f);
+		peakFilter800.setQ(0.5f);
+		peakFilter800.setGain(0.0f);
+		peakFilter800.addInput(sp);
+	
+		gain800 = new Gain(ac,2,0.0f);
+		gain800.addInput(peakFilter800);
+		
+	//2.5kHz ********************************
+		peakFilter25 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
+		peakFilter25.setFrequency(800.0f);
+		peakFilter25.setQ(0.5f);
+		peakFilter25.setGain(0.0f);
+		peakFilter25.addInput(sp);
+	
+		gain25 = new Gain(ac,2,0.0f);
+		gain25.addInput(peakFilter25);
+		
+		// 8 kHz ********************************
+		peakFilter8 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
+		peakFilter8.setFrequency(800.0f);
+		peakFilter8.setQ(0.5f);
+		peakFilter8.setGain(0.0f);
+		peakFilter8.addInput(sp);
+	
+		gain8 = new Gain(ac,2,0.0f);
+		gain8.addInput(peakFilter8);
+		
+		ac.out.addInput(gain800);
+		ac.out.addInput(gain250);
+		ac.out.addInput(gain25);
+		ac.out.addInput(gain8);
+	
 	
 		
 	}
 	
-	public static void resetFilters(){
+	public static void resetFilters()
+	{
 		lpf.setFrequency(0.0f);
 		hpf.setFrequency(0.0f);
 		lpf.setValue(0.0f);
@@ -248,10 +286,24 @@ private ResourceFinder finder;
 		// TODO Auto-generated method stub
 		if(e.getSource().equals(s250))
 		{
-			
+			peakFilter250.setGain(s250.getValue() * 0.3333f);
+			//gain250.setValue(s250.getValue() * 0.0333f);
+			gain250.setGain(s250.getValue() * 0.0333f);
 		
 		}
-		
+		else if(e.getSource().equals(s800)){
+			peakFilter800.setGain(s800.getValue() * 0.3333f);
+			gain800.setGain(s800.getValue() * .0333f);
+		}
+		else if(e.getSource().equals(s25)){
+			peakFilter25.setGain(s25.getValue() * 0.3333f);
+			gain25.setGain(s25.getValue() * .0333f);
+		}
+		else if(e.getSource().equals(s8)){
+			peakFilter8.setGain(s8.getValue() * 0.3333f);
+			gain8.setGain(s8.getValue() * .0333f);
+		}
+		sp.update();
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
