@@ -20,6 +20,7 @@ import javax.swing.event.ChangeListener;
 
 import io.ResourceFinder;
 import net.beadsproject.beads.core.AudioContext;
+import net.beadsproject.beads.ugens.BiquadFilter;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.OnePoleFilter;
@@ -36,14 +37,23 @@ private ResourceFinder finder;
 	private Font title = new Font("Times New Roman",Font.BOLD,18);
 	private static int lpfOn =0;
 	private static int hpfOn =0;
+	
+	
+	
+	private static Gain mainGain = AudioControlPanel.getMainGain();
 	private JSlider s250,s800,s25,s8;
 	private static JToggleButton lpfButton, hpfButton;
 	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
 	private JSpinner lpfSpinner, hpfSpinner;
 	private static OnePoleFilter lpf,hpf;	
 	private JPanel sliderPanel,eqPanel;
-	private static Gain lpfGain, hpfGain;	
-	private static Glide lpfGlide, hpfGlide;
+	private static Gain lpfGain, hpfGain, gain250, gain800, gain25, gain8;	
+	private static Glide lpfGlide, hpfGlide, glideGain250, glideGain800,glideGain25, glideGain8;
+	
+	private BiquadFilter peakFilter250, peakFIlter800, peakFilter25, peakFilter8;
+	
+	
+	
 	public static AudioContext ac;
 	public static SamplePlayer sp;
 	
@@ -184,6 +194,7 @@ private ResourceFinder finder;
 	
 	public void initFilters()
 	{
+		/* Low Pass High pass*/
 		
 		lpf = new OnePoleFilter(ac,0.0f);
 		hpf = new OnePoleFilter(ac,0.0f);
@@ -201,11 +212,19 @@ private ResourceFinder finder;
 		lpfGain.addInput(lpf);
 		hpfGain.addInput(hpf);
 		
-
-	
-		
 		ac.out.addInput(lpfGain);
 		ac.out.addInput(hpfGain);
+		
+		/* Peak Filters */
+		peakFilter250 = new BiquadFilter(ac, BiquadFilter.BP_PEAK, 250.0f, 0.5f);
+		peakFilter250.addInput(sp);
+		
+		glideGain250 = new Glide(ac, 0.0f, 20);
+		mainGain.addInput(peakFilter250);
+		ac.out.addInput(glideGain250);
+		ac.out.start();
+	
+		
 	}
 	
 	public static void resetFilters(){
@@ -227,6 +246,11 @@ private ResourceFinder finder;
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		// TODO Auto-generated method stub
+		if(e.getSource().equals(s250))
+		{
+			
+		
+		}
 		
 	}
 	@Override
