@@ -191,7 +191,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		}
 		ac = new AudioContext();
 		sp = new SamplePlayer(ac, sample);
-		g = new Gain(ac, 2, 0.0f);
+		g = new Gain(ac, 2, 0.1f);
 		g.addInput(sp);
 		ac.out.addInput(g);
 		
@@ -286,22 +286,9 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	public void stateChanged(ChangeEvent e) {
 	
 		if(e.getSource().equals(volumeSlider)){
-			currVol = volumeSlider.getValue();
-			if(prevVol < currVol){
-				if(g.getGain() < 0.30f)
-					g.setGain(g.getGain() + 0.02f);
-			}
-			else
-			{
-				if(g.getGain() > 0){
-					g.setGain(g.getGain()  - 0.02f);
-					
-				}
-			}
+			System.out.println("negative" + g.getGain());
+			g.setGain(volumeSlider.getValue() * - (float)0.125);			
 		}
-
-		System.out.println(g.getGain());
-
 	}
 
 	public void updateLevel(float level){

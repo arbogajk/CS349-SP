@@ -41,12 +41,12 @@ private ResourceFinder finder;
 	
 	
 	private static Gain mainGain = AudioControlPanel.getMainGain();
-	private JSlider s250,s800,s25,s8;
+	private static JSlider s250,s800,s25,s8;
 	private static JToggleButton lpfButton, hpfButton;
 	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
 	private JSpinner lpfSpinner, hpfSpinner;
 	private static OnePoleFilter lpf,hpf;	
-	private JPanel sliderPanel,eqPanel;
+	private JPanel sliderPanel, eqPanel;
 	private static Gain lpfGain, hpfGain, gain250, gain800, gain25, gain8;	
 	private static Glide lpfGlide, hpfGlide, glideGain250, glideGain800,glideGain25, glideGain8;
 	
@@ -116,7 +116,8 @@ private ResourceFinder finder;
 		s250.setPaintTicks(true);
 		s250.setSnapToTicks(true);
 		s250.addChangeListener(this);
-		s250.setBounds(5,(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),(int)(sliderPanel.getBounds().getMaxY()/1.5));
+		s250.setBounds(5,(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
+				(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		s250.setForeground(jmuPurple);
 		f250.setBounds((int)s250.getBounds().getMinX() + 6,(int)s250.getBounds().getMaxY() + 6,40,20);
 		
@@ -138,9 +139,11 @@ private ResourceFinder finder;
 		s25.setSnapToTicks(true);
 		s25.addChangeListener(this);
 		s25.setForeground(jmuPurple);
-		s25.setBounds((int)s800.getBounds().getMaxX() + 20,(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
+		s25.setBounds((int)s800.getBounds().getMaxX() + 20,
+				(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
 		(int)(sliderPanel.getBounds().getMaxY()/1.5));
-		f25.setBounds((int)s25.getBounds().getMinX() + 6,(int)s25.getBounds().getMaxY() + 1,50,30);
+		f25.setBounds((int)s25.getBounds().getMinX() + 6,
+				(int)s25.getBounds().getMaxY() + 1,50,30);
 		
 		s8= new JSlider(JSlider.VERTICAL,-12,12,0);
 		s8.setMajorTickSpacing(3);
@@ -149,9 +152,11 @@ private ResourceFinder finder;
 		s8.setSnapToTicks(true);
 		s8.addChangeListener(this);
 		s8.setForeground(jmuPurple);
-		s8.setBounds((int)s25.getBounds().getMaxX() +20,(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
+		s8.setBounds((int)s25.getBounds().getMaxX() +20,
+				(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
-		f8.setBounds((int)s8.getBounds().getMinX() + 6,(int)s8.getBounds().getMaxY() + 1,50,30);
+		f8.setBounds((int)s8.getBounds().getMinX() + 6,
+				(int)s8.getBounds().getMaxY() + 1,50,30);
 		
 		lpfButton = new JToggleButton("LPF");
 		hpfButton = new JToggleButton("HPF");
@@ -195,7 +200,6 @@ private ResourceFinder finder;
 	public void initFilters()
 	{
 		/* Low Pass High pass*/
-		
 		lpf = new OnePoleFilter(ac,0.0f);
 		hpf = new OnePoleFilter(ac,0.0f);
 	
@@ -208,7 +212,6 @@ private ResourceFinder finder;
 		lpfGain = new Gain(ac, 2, lpfGlide);
 		hpfGain = new Gain(ac, 2, hpfGlide);
 		
-		
 		lpfGain.addInput(lpf);
 		hpfGain.addInput(hpf);
 		
@@ -218,7 +221,7 @@ private ResourceFinder finder;
 		/* Peak Filters */
 		peakFilter250 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
 		peakFilter250.setFrequency(250.0f);
-		peakFilter250.setQ(0.70f);
+		peakFilter250.setQ(1.0f);
 		peakFilter250.setGain(0.0f);
 		peakFilter250.addInput(sp);	
 	
@@ -228,17 +231,17 @@ private ResourceFinder finder;
 		//800 Hz ************************
 		peakFilter800 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
 		peakFilter800.setFrequency(800.0f);
-		peakFilter800.setQ(0.5f);
+		peakFilter800.setQ(1.0f);
 		peakFilter800.setGain(0.0f);
 		peakFilter800.addInput(sp);
 	
 		gain800 = new Gain(ac,2,0.0f);
 		gain800.addInput(peakFilter800);
 		
-	//2.5kHz ********************************
+		//2.5kHz ********************************
 		peakFilter25 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
 		peakFilter25.setFrequency(800.0f);
-		peakFilter25.setQ(0.5f);
+		peakFilter25.setQ(1.0f);
 		peakFilter25.setGain(0.0f);
 		peakFilter25.addInput(sp);
 	
@@ -248,20 +251,18 @@ private ResourceFinder finder;
 		// 8 kHz ********************************
 		peakFilter8 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
 		peakFilter8.setFrequency(800.0f);
-		peakFilter8.setQ(0.5f);
+		peakFilter8.setQ(1.0f);
 		peakFilter8.setGain(0.0f);
 		peakFilter8.addInput(sp);
 	
 		gain8 = new Gain(ac,2,0.0f);
 		gain8.addInput(peakFilter8);
 		
+		/*** Add the Gains for the frequencies to the audio context output ***/
 		ac.out.addInput(gain800);
 		ac.out.addInput(gain250);
 		ac.out.addInput(gain25);
 		ac.out.addInput(gain8);
-	
-	
-		
 	}
 	
 	public static void resetFilters()
@@ -276,34 +277,41 @@ private ResourceFinder finder;
 		hpfOn = 0;
 		lpfButton.setSelected(false);
 		hpfButton.setSelected(false);
-	
+		s250.setValue(0);
+		s800.setValue(0);
+		s25.setValue(0);
+		s8.setValue(0);
+		gain250.setGain(0.0f);
+		gain800.setGain(0.0f);
+		gain25.setGain(0.0f);
+		gain8.setGain(0.0f);
 	}
 	
 	
 	
 	@Override
-	public void stateChanged(ChangeEvent e) {
+	public void stateChanged(ChangeEvent e) 
+	{
 		// TODO Auto-generated method stub
 		if(e.getSource().equals(s250))
 		{
-			peakFilter250.setGain(s250.getValue() * 0.3333f);
-			//gain250.setValue(s250.getValue() * 0.0333f);
+			//peakFilter250.setGain(s250.getValue() * 0.3333f);
 			gain250.setGain(s250.getValue() * 0.0333f);
 		
 		}
 		else if(e.getSource().equals(s800)){
-			peakFilter800.setGain(s800.getValue() * 0.3333f);
+			//peakFilter800.setGain(s800.getValue() * 0.3333f);
 			gain800.setGain(s800.getValue() * .0333f);
 		}
 		else if(e.getSource().equals(s25)){
-			peakFilter25.setGain(s25.getValue() * 0.3333f);
+			//peakFilter25.setGain(s25.getValue() * 0.3333f);
 			gain25.setGain(s25.getValue() * .0333f);
 		}
 		else if(e.getSource().equals(s8)){
-			peakFilter8.setGain(s8.getValue() * 0.3333f);
+			//peakFilter8.setGain(s8.getValue() * 0.3333f);
 			gain8.setGain(s8.getValue() * .0333f);
 		}
-		sp.update();
+		sp.update(); //Update the sample player
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -318,8 +326,6 @@ private ResourceFinder finder;
 				lpfGlide.setValue(0.7f);
 			
 				lpfOn = 1;
-				
-			
 			}
 			else
 			{
@@ -327,28 +333,23 @@ private ResourceFinder finder;
 				lpfGlide.setValue(0.0f);
 		
 				lpfOn = 0;
-			
-				
 			}
 			lpf.start();
 			lpfGain.start();
 			sp.start();
-	
-
 		}
 		else if(e.getSource().equals(hpfButton))
 		{
-			if(hpfOn == 0){
+			if(hpfOn == 0)
+			{
 				System.out.println("armed");
 				float frequency = filterFreqHPF.getNumber().floatValue();
 				hpf.setFrequency(frequency);
 				hpfGlide.setValue(0.2f);
-			
-				
-			
 				hpfOn = 1;
 			}
-			else{
+			else
+			{
 				hpf.setFrequency(0.0f);
 				hpfGlide.setValue(0.0f);
 			
