@@ -19,6 +19,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import io.ResourceFinder;
+import net.beadsproject.beads.analysis.featureextractors.FFT;
+import net.beadsproject.beads.analysis.featureextractors.PowerSpectrum;
+import net.beadsproject.beads.analysis.featureextractors.SpectralPeaks;
+import net.beadsproject.beads.analysis.segmenters.ShortFrameSegmenter;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.ugens.BiquadFilter;
 import net.beadsproject.beads.ugens.Gain;
@@ -35,25 +39,26 @@ private ResourceFinder finder;
 	private Font font = new Font("Times New Roman",Font.BOLD,16);
 	private Font fontVolume = new Font("Times New Roman",Font.BOLD,16);
 	private Font title = new Font("Times New Roman",Font.BOLD,18);
-	private static int lpfOn =0;
-	private static int hpfOn =0;
-	
-	
-	
-	private static Gain mainGain = AudioControlPanel.getMainGain();
-	private static JSlider s250,s800,s25,s8;
-	private static JToggleButton lpfButton, hpfButton;
 	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
 	private JSpinner lpfSpinner, hpfSpinner;
-	private static OnePoleFilter lpf,hpf;	
 	private JPanel sliderPanel, eqPanel;
-	private static Gain lpfGain, hpfGain, gain250, gain800, gain25, gain8;	
-	private static Glide lpfGlide, hpfGlide, glideGain250, glideGain800,glideGain25, glideGain8;
-	
 	private BiquadFilter peakFilter250, peakFilter800, peakFilter25, peakFilter8;
 	
-	
-	
+	/**These are static so the reset method can be called in the AudioControlPanel class */
+	private static OnePoleFilter lpf,hpf;
+	private static Gain mainGain = AudioControlPanel.getMainGain();
+	private static JSlider s250,s800,s25,s8;
+	private static JToggleButton lpfButton, hpfButton,highShelfButton, lowShelfButton;
+	private static int lpfOn =0;
+	private static int hpfOn =0;
+	private static int hShelfOn = 0;
+	private static int lShelfOn = 0;
+	private static Gain lpfGain, hpfGain, gain250, gain800, gain25, gain8, highShelfGain, lowShelfGain;	
+	private static Glide lpfGlide, hpfGlide;
+	private static BiquadFilter lowShelf, highShelf;
+		
+
+
 	public static AudioContext ac;
 	public static SamplePlayer sp;
 	
@@ -110,7 +115,7 @@ private ResourceFinder finder;
     	f25 = new JLabel("2.5 kHz");
     	f8 = new JLabel("8 kHz");
     	
-		s250 = new JSlider(JSlider.VERTICAL,-12,12,0);
+		s250 = new JSlider(JSlider.VERTICAL,-9,9,0);
 		s250.setMajorTickSpacing(3);
 		s250.setPaintLabels(true);
 		s250.setPaintTicks(true);
@@ -121,7 +126,7 @@ private ResourceFinder finder;
 		s250.setForeground(jmuPurple);
 		f250.setBounds((int)s250.getBounds().getMinX() + 6,(int)s250.getBounds().getMaxY() + 6,40,20);
 		
-		s800 = new JSlider(JSlider.VERTICAL,-12,12,0);
+		s800 = new JSlider(JSlider.VERTICAL,-9,9,0);
 		s800.setMajorTickSpacing(3);
 		s800.setPaintLabels(true);
 		s800.setPaintTicks(true);
@@ -132,7 +137,7 @@ private ResourceFinder finder;
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		f800.setBounds((int)s800.getBounds().getMinX() + 6,(int)s800.getBounds().getMaxY() + 1,50,30);
 		
-		s25= new JSlider(JSlider.VERTICAL,-12,12,0);
+		s25= new JSlider(JSlider.VERTICAL,-9,9,0);
 		s25.setMajorTickSpacing(3);
 		s25.setPaintLabels(true);
 		s25.setPaintTicks(true);
@@ -145,7 +150,7 @@ private ResourceFinder finder;
 		f25.setBounds((int)s25.getBounds().getMinX() + 6,
 				(int)s25.getBounds().getMaxY() + 1,50,30);
 		
-		s8= new JSlider(JSlider.VERTICAL,-12,12,0);
+		s8= new JSlider(JSlider.VERTICAL,-9,9,0);
 		s8.setMajorTickSpacing(3);
 		s8.setPaintLabels(true);
 		s8.setPaintTicks(true);
@@ -179,6 +184,12 @@ private ResourceFinder finder;
 		hpfSpinner.setBounds((int)hpfButton.getBounds().getMaxX() + 6,
 				(int)hpfButton.getBounds().getY(),70,30);
 		
+		highShelfButton = new JToggleButton("High Shelf");
+		lowShelfButton = new JToggleButton("Low Shelf");
+		
+		highShelfButton.setBounds((int)hpfButton.getBounds().getX(), (int)hpfButton.getBounds().getMaxY() + 6, 85,30);
+		lowShelfButton.setBounds((int)hpfButton.getBounds().getX(), (int)highShelfButton.getBounds().getMaxY() + 6, 85,30);
+		
 		
 		sliderPanel.add(s250);
 		sliderPanel.add(f250);
@@ -190,6 +201,8 @@ private ResourceFinder finder;
 		sliderPanel.add(f8);
 		sliderPanel.add(lpfButton);
 		sliderPanel.add(hpfButton);
+		sliderPanel.add(highShelfButton);
+		sliderPanel.add(lowShelfButton);
 		sliderPanel.add(lpfSpinner);
 		sliderPanel.add(hpfSpinner);
 		eqPanel.add(panelTitle);
@@ -199,22 +212,37 @@ private ResourceFinder finder;
 	
 	public void initFilters()
 	{
+		
 		/* Low Pass High pass*/
 		lpf = new OnePoleFilter(ac,0.0f);
 		hpf = new OnePoleFilter(ac,0.0f);
-	
+		
+		lowShelf = new BiquadFilter(ac,2,BiquadFilter.LOW_SHELF);
+		lowShelf.setFrequency(80.0f);
+		highShelf = new BiquadFilter(ac, 2, BiquadFilter.HIGH_SHELF);
+		highShelf.setFrequency(9000.0f);
+		
+		//add the sample player as an input to the filters
 		lpf.addInput(sp);
 		hpf.addInput(sp);
+		lowShelf.addInput(sp);
+		highShelf.addInput(sp);
 		
 		lpfGlide = new Glide(ac, 0.1f, 20);
 		hpfGlide = new Glide(ac, 0.1f, 20);
-		
 		lpfGain = new Gain(ac, 2, lpfGlide);
 		hpfGain = new Gain(ac, 2, hpfGlide);
-		
 		lpfGain.addInput(lpf);
 		hpfGain.addInput(hpf);
 		
+		lowShelfGain = new Gain(ac, 2, 0.0f);
+		highShelfGain = new Gain(ac, 2, 0.0f);
+		
+		lowShelfGain.addInput(lowShelf);
+		highShelfGain.addInput(highShelf);
+		
+		ac.out.addInput(lowShelfGain);
+		ac.out.addInput(highShelfGain);
 		ac.out.addInput(lpfGain);
 		ac.out.addInput(hpfGain);
 		
@@ -263,6 +291,7 @@ private ResourceFinder finder;
 		ac.out.addInput(gain250);
 		ac.out.addInput(gain25);
 		ac.out.addInput(gain8);
+
 	}
 	
 	public static void resetFilters()
@@ -292,26 +321,31 @@ private ResourceFinder finder;
 	@Override
 	public void stateChanged(ChangeEvent e) 
 	{
-		// TODO Auto-generated method stub
-		if(e.getSource().equals(s250))
-		{
-			//peakFilter250.setGain(s250.getValue() * 0.3333f);
-			gain250.setGain(s250.getValue() * 0.0333f);
+
+			if(e.getSource().equals(s250))
+			{
+				
+					peakFilter250.setGain(s250.getValue());
+					gain250.setGain(s250.getValue() * 0.5f);
+					System.out.println("250Gain is " + gain250.getGain());
+	
+			
+			}
+			else if(e.getSource().equals(s800)){
+				peakFilter800.setGain(s800.getValue());
+				gain800.setGain(s800.getValue() * 0.5f);
+			}
+			else if(e.getSource().equals(s25)){
+				peakFilter25.setGain(s25.getValue() );
+				gain25.setGain(s25.getValue() * 0.5f);
+			}
+			else if(e.getSource().equals(s8)){
+				peakFilter8.setGain(s8.getValue());
+				gain8.setGain(s8.getValue() * 0.5f);
+			}
 		
-		}
-		else if(e.getSource().equals(s800)){
-			//peakFilter800.setGain(s800.getValue() * 0.3333f);
-			gain800.setGain(s800.getValue() * .0333f);
-		}
-		else if(e.getSource().equals(s25)){
-			//peakFilter25.setGain(s25.getValue() * 0.3333f);
-			gain25.setGain(s25.getValue() * .0333f);
-		}
-		else if(e.getSource().equals(s8)){
-			//peakFilter8.setGain(s8.getValue() * 0.3333f);
-			gain8.setGain(s8.getValue() * .0333f);
-		}
-		sp.update(); //Update the sample player
+
+		
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -323,7 +357,7 @@ private ResourceFinder finder;
 				float frequency = filterFreqLPF.getNumber().floatValue();
 				lpf.setFrequency(frequency);
 			
-				lpfGlide.setValue(0.7f);
+				lpfGlide.setValue(3.0f);
 			
 				lpfOn = 1;
 			}
@@ -334,9 +368,7 @@ private ResourceFinder finder;
 		
 				lpfOn = 0;
 			}
-			lpf.start();
-			lpfGain.start();
-			sp.start();
+
 		}
 		else if(e.getSource().equals(hpfButton))
 		{
@@ -345,7 +377,7 @@ private ResourceFinder finder;
 				System.out.println("armed");
 				float frequency = filterFreqHPF.getNumber().floatValue();
 				hpf.setFrequency(frequency);
-				hpfGlide.setValue(0.2f);
+				hpfGlide.setValue(1.0f);
 				hpfOn = 1;
 			}
 			else
@@ -355,11 +387,28 @@ private ResourceFinder finder;
 			
 				hpfOn = 0;
 			}
-			hpfGain.start();
-			lpf.start();
-			sp.start();
-
 		}
-		
+		else if(e.getSource().equals(lowShelfButton))
+		{
+			if(lShelfOn == 0){
+				lowShelfGain.setGain(4.0f);
+				lShelfOn = 1;
+			}
+			else{
+				lowShelfGain.setGain(0.0f);
+				lShelfOn = 0;
+			}
+		}
+		else if(e.getSource().equals(highShelfButton))
+		{
+			if(hShelfOn == 0){
+				highShelfGain.setGain(4.0f);
+				hShelfOn = 1;
+			}
+			else{				
+				highShelfGain.setGain(0.0f);
+				hShelfOn = 0;
+			}
+		}
 	}
 }

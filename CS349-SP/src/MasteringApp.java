@@ -58,20 +58,15 @@ public class MasteringApp extends AbstractMultimediaApp
      */
     public void init()
     {
-    
     	contentPane = (JPanel)rootPaneContainer.getContentPane();
     	contentPane.setLayout(null);
     	contentPane.setBounds(0, 0, MAX_WIDTH, MAX_HEIGHT);
     
     	PANELHEIGHT = (int) MAX_HEIGHT /3;
-    	AudioControlPanel audioControls = new AudioControlPanel(MAX_WIDTH, PANELHEIGHT);
+    	System.out.println(MAX_WIDTH);
+    	AudioControlPanel audioControls = new AudioControlPanel(MAX_WIDTH, MAX_HEIGHT, PANELHEIGHT);
     	
-    	
-    	System.out.println("Max width " + MAX_WIDTH);
-    	System.out.println("Max HEIGHT " + MAX_HEIGHT);
-
-    	System.out.println("Max 3RDS PANEL HEIGHT" + PANELHEIGHT);
-    	
+        	
        	contentPane.add(audioControls);
 
     	JPanel fvp = new FrequencyVizPanel(MAX_WIDTH,PANELHEIGHT);

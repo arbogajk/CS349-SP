@@ -12,9 +12,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
+
 import javax.sound.sampled.Control;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
@@ -40,18 +38,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import visual.statik.sampled.ImageFactory;
-import auditory.sampled.AddOp;
-import auditory.sampled.BoomBox;
-import auditory.sampled.BufferedSound;
-import auditory.sampled.BufferedSoundFactory;
-import auditory.sampled.FIRFilter;
-import auditory.sampled.FIRFilterOp;
 import io.ResourceFinder;
 
 
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.data.Sample;
 import net.beadsproject.beads.data.SampleManager;
+import net.beadsproject.beads.ugens.Clip;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.OnePoleFilter;
@@ -69,7 +62,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private Color jmuPurple = new Color(69,0,132);
 	private Color jmuGold = new Color(203,182,119);
 	private Font font = new Font("Times New Roman",Font.BOLD,16);
-	private Font fontVolume = new Font("Times New Roman",Font.BOLD,16);
+	private Font fontVolume = new Font("Times New Roman",Font.BOLD,20);
 	private Font title = new Font("Times New Roman",Font.BOLD,18);
 
 
@@ -89,15 +82,17 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 
 	private static AudioContext ac;				//An audio context
 	private static SamplePlayer sp;				//The audio player that takes sampled content
-	private static Gain g;							//Gain object for the overall master volume
-		
+	private static Gain masterGain;							//Gain object for the overall master volume
+	
 	private final int WIDTH;
 	private final int HEIGHT;
+	private final int MAX_HEIGHT;
 	
-	public AudioControlPanel(int width, int height){
+	public AudioControlPanel(int width, int max_height, int height){
 		super();	
 		WIDTH = width;
 		HEIGHT = height;
+		MAX_HEIGHT = max_height;
 		
 		setLayout(null);
 		setBounds(0,0, WIDTH, HEIGHT);
@@ -128,7 +123,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	volumeSlider.setFont(fontVolume);
     	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
     	volumeSlider.setBackground(jmuPurple);
-    	volumeSlider.setBounds((int)volume.getBounds().getMinX() - 140, (int)volume.getBounds().getY(), 100, 150);
+    	volumeSlider.setBounds((int)volume.getBounds().getMinX() - 140, (int)volume.getBounds().getY() - 75, 100, 250);
     	volumeSlider.setForeground(jmuGold);
     	
      	files = buildDropDown();
@@ -152,16 +147,11 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	JLabel volumeLabel = new JLabel("Volume");
     	volumeLabel.setFont(font);
     	volumeLabel.setForeground(jmuGold);
-    	volumeLabel.setBounds((int)volumeSlider.getBounds().getCenterX() - 20,(int)volumeSlider.getBounds().getMaxY() + 10,70,30);
+    	volumeLabel.setBounds((int)volumeSlider.getBounds().getCenterX() - 20,MAX_HEIGHT - 2,70,30);
+    	System.out.println(MAX_HEIGHT - 10);
     	
     	samplePlayerInit();
     	
-      
-
-		
-		
-		
-		
     	add(volumeSlider);
     	add(volumeLabel);
     	add(files);
@@ -173,7 +163,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	}
 	
 	public void samplePlayerInit(){
-		AudioInputStream as = null;
+		
 		String	audioFile = files.getSelectedItem().toString();
 		InputStream sourceStream = finder.findInputStream("/audio/"+audioFile);
 		
@@ -191,19 +181,25 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		}
 		ac = new AudioContext();
 		sp = new SamplePlayer(ac, sample);
-		g = new Gain(ac, 2, 0.1f);
-		g.addInput(sp);
-		ac.out.addInput(g);
 		
+
+		masterGain = new Gain(ac, 1, 0.0f);
+	
+		masterGain.addInput(sp);
+		ac.out.addInput(masterGain);
+		ac.out.setGain(0.08f);
+		masterGain.setGain(volumeSlider.getValue() );
 	    sp.setKillOnEnd(false);
-	    
+	 
+
 		
 	
 	}
 	
 			
 	public JComboBox<String> buildDropDown(){
-		String audioFiles[] ={"VeilofShadows.wav","GeneralGrevious.wav", "underminers-drumloop.wav","VeilofShadows-Outro.wav"};
+		String audioFiles[] ={"VeilofShadows.wav","GeneralGrevious.wav", 
+				"underminers-drumloop.wav","VeilofShadows-Outro.wav"};
 
 		JComboBox<String> fileSelect = new JComboBox<>(audioFiles);
 		fileSelect.addActionListener(this);
@@ -211,19 +207,6 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	
 	}
 	
-	
-	
-	
-	
-	/** This method should toggle the color of the hpf and lpf buttons
-	 *  when they are clicked and set the color back to default when clicked again.
-	 * @param button
-	 */
-	public void toggleFilterButtons(JButton button){
-
-
-		
-	}
 	
 	/**
 	 * Performs actions based on button clicks
@@ -258,7 +241,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 				currVol = volumeSlider.getValue();
 				prevVol = currVol;
 			}	
-			System.out.println("Initial Gain" + g.getGain());
+			System.out.println("Initial Gain" + masterGain.getGain());
 		}
 		else if(e.getSource().equals(pausebutton))
 		{
@@ -271,9 +254,6 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			sp.reset();
 			ac.reset();
 		}
-		
-		/************************************* EQ Low/High Pass Filters ********************************************************/
-		
 	}
 	
 
@@ -283,19 +263,27 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
  */
 
 	@Override
-	public void stateChanged(ChangeEvent e) {
+	public void stateChanged(ChangeEvent e)
+	{
 	
-		if(e.getSource().equals(volumeSlider)){
-			System.out.println("negative" + g.getGain());
-			g.setGain(volumeSlider.getValue() * - (float)0.125);			
+		if(e.getSource().equals(volumeSlider))
+		{
+			if(volumeSlider.getValue() == 0){
+				ac.out.setGain(0.0f);
+			}
+			else{
+				ac.out.setGain(0.08f);
+				masterGain.setGain(volumeSlider.getValue());	
+				
+			}
+					
+			System.out.println("Gain: " + ac.out.getGain());
+		
+	
 		}
+	
 	}
 
-	public void updateLevel(float level){
-		
-		
-		
-	}
 	
 	/**
 	 * Getter for the AudioContext
@@ -317,6 +305,6 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		return sp;
 	}
 	public static Gain getMainGain(){
-		return g;
+		return masterGain;
 	}
 }

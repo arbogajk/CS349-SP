@@ -10,8 +10,8 @@ import app.*;
 public class   MasteringApplication
        extends MultimediaApplication
 {
-	public static double WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-	public static double HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+	public static double WIDTH = Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 3;
+	public static double HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 150;
     /**
      * The entry-point of the application
      *
@@ -19,8 +19,7 @@ public class   MasteringApplication
      */
     public static void main(String[] args) throws Exception
     {
-       WIDTH = WIDTH / 3;
-       HEIGHT = HEIGHT - 200;
+      
        SwingUtilities.invokeAndWait(
           new MasteringApplication(args, (int)(WIDTH), (int)HEIGHT));
     }
