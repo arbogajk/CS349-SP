@@ -36,9 +36,10 @@ private ResourceFinder finder;
 	
 	private Color jmuPurple = new Color(69,0,132);
 	private Color jmuGold = new Color(203,182,119);
-	private Font font = new Font("Times New Roman",Font.BOLD,16);
-	private Font fontVolume = new Font("Times New Roman",Font.BOLD,16);
-	private Font title = new Font("Times New Roman",Font.BOLD,18);
+	private Font font;
+	private Font fontVolume;
+	private Font title;
+	private Font labelsFont;
 	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
 	private JSpinner lpfSpinner, hpfSpinner;
 	private JPanel sliderPanel, eqPanel;
@@ -76,6 +77,13 @@ private ResourceFinder finder;
 		setBounds(0,0,WIDTH,HEIGHT/2);
 		setBorder(new LineBorder(jmuPurple,5));
 		
+		font = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * .04));
+		fontVolume = new Font("Times New Roman",Font.BOLD,(int)(WIDTH *0.04));
+		title = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.04));
+		labelsFont = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.02 + 2));
+		
+		
+		
 		buildEQSliders();
 		
 		ac = AudioControlPanel.getAC();
@@ -100,20 +108,24 @@ private ResourceFinder finder;
     	ImageFactory imgFactory = new ImageFactory(finder);
     	Image eqIcon= imgFactory.createBufferedImage("/img/eqText.png", 2);
     	
-    	Icon eqImg = new ImageIcon(eqIcon.getScaledInstance(100,70, 0));
+    	Icon eqImg = new ImageIcon(eqIcon.getScaledInstance((int)(WIDTH *0.2),(int)(HEIGHT * 0.2), 0));
 		
 		sliderPanel = new JPanel();
 		sliderPanel.setLayout(null);
 		sliderPanel.setBounds(20,20,WIDTH - 40, HEIGHT -40);
    
 		JLabel panelTitle = new JLabel(eqImg);
-    	panelTitle.setBounds(((int)sliderPanel.getBounds().getCenterX()) - 75,15,110,80);
+    	panelTitle.setBounds(((int)sliderPanel.getBounds().getCenterX()) - 75,1,110,90);
     	JLabel f250,f800,f25,f8;
     	
     	f250 = new JLabel("250 Hz");
+    	f250.setForeground(jmuPurple);
     	f800 = new JLabel("800 Hz");
+    	f800.setForeground(jmuPurple);
     	f25 = new JLabel("2.5 kHz");
+    	f25.setForeground(jmuPurple);
     	f8 = new JLabel("8 kHz");
+    	f8.setForeground(jmuPurple);
     	
 		s250 = new JSlider(JSlider.VERTICAL,-9,9,0);
 		s250.setMajorTickSpacing(3);
@@ -121,10 +133,11 @@ private ResourceFinder finder;
 		s250.setPaintTicks(true);
 		s250.setSnapToTicks(true);
 		s250.addChangeListener(this);
-		s250.setBounds(5,(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
+		s250.setBounds(5,(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		s250.setForeground(jmuPurple);
-		f250.setBounds((int)s250.getBounds().getMinX() + 6,(int)s250.getBounds().getMaxY() + 6,40,20);
+		f250.setBounds((int)s250.getBounds().getMinX() + 6,(int)s250.getBounds().getMaxY() +3,40,20);
+		f250.setFont(labelsFont);
 		
 		s800 = new JSlider(JSlider.VERTICAL,-9,9,0);
 		s800.setMajorTickSpacing(3);
@@ -133,10 +146,10 @@ private ResourceFinder finder;
 		s800.setSnapToTicks(true);
 		s800.addChangeListener(this);
 		s800.setForeground(jmuPurple);
-		s800.setBounds((int)s250.getBounds().getMaxX() + 20,(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
+		s800.setBounds((int)s250.getBounds().getMaxX() + 20,(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
-		f800.setBounds((int)s800.getBounds().getMinX() + 6,(int)s800.getBounds().getMaxY() + 1,50,30);
-		
+		f800.setBounds((int)s800.getBounds().getMinX() + 6,(int)s800.getBounds().getMaxY() + 3,40,20);
+		f800.setFont(labelsFont);
 		s25= new JSlider(JSlider.VERTICAL,-9,9,0);
 		s25.setMajorTickSpacing(3);
 		s25.setPaintLabels(true);
@@ -145,11 +158,11 @@ private ResourceFinder finder;
 		s25.addChangeListener(this);
 		s25.setForeground(jmuPurple);
 		s25.setBounds((int)s800.getBounds().getMaxX() + 20,
-				(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
+				(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
 		(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		f25.setBounds((int)s25.getBounds().getMinX() + 6,
-				(int)s25.getBounds().getMaxY() + 1,50,30);
-		
+				(int)s25.getBounds().getMaxY() + 3,40,20);
+		f25.setFont(labelsFont);
 		s8= new JSlider(JSlider.VERTICAL,-9,9,0);
 		s8.setMajorTickSpacing(3);
 		s8.setPaintLabels(true);
@@ -158,18 +171,25 @@ private ResourceFinder finder;
 		s8.addChangeListener(this);
 		s8.setForeground(jmuPurple);
 		s8.setBounds((int)s25.getBounds().getMaxX() +20,
-				(int)sliderPanel.getBounds().getMinY() + 30,(int)(WIDTH *0.07),
+				(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		f8.setBounds((int)s8.getBounds().getMinX() + 6,
-				(int)s8.getBounds().getMaxY() + 1,50,30);
-		
+				(int)s8.getBounds().getMaxY() + 3,40,20);
+		f8.setFont(labelsFont);
 		lpfButton = new JToggleButton("LPF");
 		hpfButton = new JToggleButton("HPF");
 		lpfButton.addActionListener(this);
 		hpfButton.addActionListener(this);
 		
-		lpfButton.setBounds(WIDTH - 200,20,60,30);
-		hpfButton.setBounds(WIDTH - 200,80,60,30);
+		lpfButton.setBounds(WIDTH - 200,20,(int)(WIDTH *0.1),30);
+		hpfButton.setBounds(WIDTH - 200,(int)lpfButton.getBounds().getMaxY() + 20,(int)(WIDTH * 0.1),30);
+		lpfButton.setFont(labelsFont);
+		hpfButton.setFont(labelsFont);
+		lpfButton.setForeground(jmuPurple);
+		lpfButton.setBackground(jmuGold);
+		hpfButton.setForeground(jmuPurple);
+		hpfButton.setBackground(jmuGold);
+		
 		
 		hpfSpinner = new JSpinner();
 		lpfSpinner = new JSpinner();
@@ -177,18 +197,26 @@ private ResourceFinder finder;
 		filterFreqHPF = new SpinnerNumberModel(16000,1000,20000,100);
 	
 		lpfSpinner.setModel(filterFreqLPF);
-		lpfSpinner.setBounds((int)lpfButton.getBounds().getMaxX() + 6, 
-				(int)lpfButton.getBounds().getY(),70,30);
+		lpfSpinner.setBounds((int)lpfButton.getBounds().getMaxX() +4, 
+				(int)lpfButton.getBounds().getY(),(int)(WIDTH * 0.15),30);
 		
 		hpfSpinner.setModel(filterFreqHPF);
 		hpfSpinner.setBounds((int)hpfButton.getBounds().getMaxX() + 6,
-				(int)hpfButton.getBounds().getY(),70,30);
+				(int)hpfButton.getBounds().getY(),(int)(WIDTH *.15),30);
 		
-		highShelfButton = new JToggleButton("High Shelf");
-		lowShelfButton = new JToggleButton("Low Shelf");
+		highShelfButton = new JToggleButton("H-Shelf");
+		highShelfButton.setForeground(jmuPurple);
+		highShelfButton.setFont(labelsFont);
+		lowShelfButton = new JToggleButton("L-Shelf");
+		lowShelfButton.setForeground(jmuPurple);
+		lowShelfButton.setFont(labelsFont);
 		
-		highShelfButton.setBounds((int)hpfButton.getBounds().getX(), (int)hpfButton.getBounds().getMaxY() + 6, 85,30);
-		lowShelfButton.setBounds((int)hpfButton.getBounds().getX(), (int)highShelfButton.getBounds().getMaxY() + 6, 85,30);
+		
+		highShelfButton.setBounds((int)hpfButton.getBounds().getX(), 
+				(int)hpfButton.getBounds().getMaxY() + 6,(int)(WIDTH * 0.15),30);
+		
+		lowShelfButton.setBounds((int)hpfButton.getBounds().getX(), 
+				(int)highShelfButton.getBounds().getMaxY() + 6, (int)(WIDTH * 0.15),30);
 		
 		
 		sliderPanel.add(s250);
