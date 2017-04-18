@@ -61,10 +61,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	
 	private Color jmuPurple = new Color(69,0,132);
 	private Color jmuGold = new Color(203,182,119);
-	private Font font = new Font("Times New Roman",Font.BOLD,16);
-	private Font fontVolume = new Font("Times New Roman",Font.BOLD,20);
-	private Font title = new Font("Times New Roman",Font.BOLD,18);
-
+	private Font font, fontVolume, title;
 
 	private int currVol, prevVol;
 	
@@ -94,6 +91,12 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		HEIGHT = height;
 		MAX_HEIGHT = max_height;
 		
+		font = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
+		fontVolume = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
+		title = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
+
+		
+		
 		setLayout(null);
 		setBounds(0,0, WIDTH, HEIGHT);
 		setBackground(jmuPurple);
@@ -105,14 +108,15 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	Image pauseIcon = imgFactory.createBufferedImage("/img/pauseButton.png",4);
     	Image stopIcon = imgFactory.createBufferedImage("/img/stopButton.png",4);
     	
-    	Icon play = new ImageIcon(pIcon.getScaledInstance(50, 50, 0));
-    	Icon pause = new ImageIcon(pauseIcon.getScaledInstance(50, 50, 0));
-    	Icon stop = new ImageIcon(stopIcon.getScaledInstance(50, 50, 0));
+    	Icon play = new ImageIcon(pIcon.getScaledInstance((int)(WIDTH * 0.085), (int)(WIDTH * 0.085), 0));
+    	Icon pause = new ImageIcon(pauseIcon.getScaledInstance((int)(WIDTH * 0.085), (int)(WIDTH * 0.085), 0));
+    	Icon stop = new ImageIcon(stopIcon.getScaledInstance((int)(WIDTH * 0.085), (int)(WIDTH * 0.085), 0));
     	
     	
-    	volume = new JProgressBar(JProgressBar.VERTICAL,0,1);
+    	volume = new JProgressBar(JProgressBar.VERTICAL,0,100);
     	volume.setValue(0);
-    	volume.setBounds(WIDTH - 50, HEIGHT - 200, 40, 150);
+    	volume.setBounds(WIDTH - 50, 5, (int)(WIDTH * 0.1),
+    			(int)this.getBounds().getHeight() - 25);
  
     	volumeSlider = new JSlider(JSlider.VERTICAL,0,10,5);
     	volumeSlider.addChangeListener(this);
@@ -123,31 +127,33 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	volumeSlider.setFont(fontVolume);
     	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
     	volumeSlider.setBackground(jmuPurple);
-    	volumeSlider.setBounds((int)volume.getBounds().getMinX() - 140, (int)volume.getBounds().getY() - 75, 100, 250);
+    	volumeSlider.setBounds(WIDTH - 200, 
+    			5, (int)(WIDTH * 0.2), (int)this.getBounds().getHeight() - 25);
     	volumeSlider.setForeground(jmuGold);
     	
      	files = buildDropDown();
-    	files.setBounds((int)volumeSlider.getBounds().getMinX() - 250, HEIGHT - 100, 200, 20);
+    	files.setBounds(10, HEIGHT - 200, 200, 20);
     	
     	playbutton = new JToggleButton(play);
-    	playbutton.setBounds(5,(int)files.getBounds().getMaxY() - 20,60,60);
+    	playbutton.setBounds(5,(int)files.getBounds().getMaxY() + 100,60,60);
     	
     	playbutton.addActionListener(this);
     	
     	pausebutton = new JToggleButton(pause);
-    	pausebutton.setBounds(65,(int)files.getBounds().getMaxY() - 20,60,60);
+    	pausebutton.setBounds(65,(int)files.getBounds().getMaxY() + 100,60,60);
     	pausebutton.addActionListener(this);
     	playbutton.setBackground(jmuPurple);
     	
     	stopbutton = new JToggleButton(stop);
-    	stopbutton.setBounds(125,(int)files.getBounds().getMaxY() - 20,60,60);
+    	stopbutton.setBounds(125,(int)files.getBounds().getMaxY() + 100,60,60);
     	stopbutton.addActionListener(this);
     	
 
     	JLabel volumeLabel = new JLabel("Volume");
     	volumeLabel.setFont(font);
     	volumeLabel.setForeground(jmuGold);
-    	volumeLabel.setBounds((int)volumeSlider.getBounds().getCenterX() - 20,MAX_HEIGHT - 2,70,30);
+    	volumeLabel.setBounds((int)volumeSlider.getBounds().getCenterX() - 20,
+    			(int)volumeSlider.getBounds().getMaxY() - 5,70,30);
     	System.out.println(MAX_HEIGHT - 10);
     	
     	samplePlayerInit();
