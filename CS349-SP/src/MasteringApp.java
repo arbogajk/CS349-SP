@@ -80,9 +80,8 @@ public class MasteringApp extends AbstractMultimediaApp
     	EQPanel eqPanel = new EQPanel(MAX_WIDTH,PANELHEIGHT);
     	eqPanel.setLayout(null);
     	eqPanel.setBounds(0,(int)fvp.getBounds().getMaxY(),MAX_WIDTH,PANELHEIGHT);
-      	contentPane.add(eqPanel);
-      	audioControls.setBounds(0, (int)eqPanel.getBounds().getMaxY(), MAX_WIDTH, PANELHEIGHT );
-      	
+    	contentPane.add(eqPanel);
+      audioControls.setBounds(0, (int)eqPanel.getBounds().getMaxY(), MAX_WIDTH, PANELHEIGHT );	
     	
     }	
 

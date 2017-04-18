@@ -6,6 +6,7 @@ import java.awt.Paint;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 
 import net.beadsproject.beads.analysis.featureextractors.FFT;
 import net.beadsproject.beads.analysis.featureextractors.PowerSpectrum;
@@ -87,13 +88,14 @@ public class SpectrumAnimationStage extends Stage
    * @param y2
    * @return A content representation of a line
    */
-  private Content createThinBar(Paint p, double x1, double y1, double x2, double y2)
+  private Content createThinBar(Paint p, double x1, double y1, double x2, 
+  															double y2, int width)
   {
   	Path2D.Float path = new Path2D.Float();
   	path.moveTo(x1, y1);
   	path.lineTo(x2, y2);
-  	path.lineTo(x2+1.0, y2);
-  	path.lineTo(x2+1.0, y1);
+  	path.lineTo(x2 + width, y2);
+  	path.lineTo(x2 + width, y1);
   	path.lineTo(x1, y1);
   	path.closePath();
   	
@@ -105,11 +107,22 @@ public class SpectrumAnimationStage extends Stage
    */
   private void draw()
   {
+  	// Get the features
   	float[] features = ps.getFeatures();
-  //	System.out.println("BEFORE DRAWING FEATURES");
+  
+  	
+  	
   	if (features != null)
   	{
-  //		System.out.println("THE FEATURES ARE NOT NULL");
+  	  // Get the max value for scaling
+//    	float[] copy = Arrays.copyOf(features, features.length);
+//    	Arrays.sort(copy);
+//    	float max = copy[copy.length - 1];
+//    	float scale = VIEW_HEIGHT / max;
+    	
+    	// Draw the bars
+  		int barWidth = VIEW_WIDTH / features.length;
+  		int leftSide = 0;
   		for(int x = 0; x < VIEW_WIDTH; x++)
   		{
   			// figure out which featureIndex corresponds to this x-
@@ -120,16 +133,37 @@ public class SpectrumAnimationStage extends Stage
   			int barHeight = Math.min((int)(features[featureIndex] *
   					VIEW_HEIGHT), VIEW_HEIGHT - 1);
   			
+  			//int barHeight = (int)((features[featureIndex] * VIEW_HEIGHT) * scale);
+  			
   			// Create the GradientPaint
-  			GradientPaint gp = new GradientPaint(x, VIEW_HEIGHT, Color.GREEN,
+  			Paint p; 
+  			
+  			if (barHeight >= 190) // Use a gradient for higher amplitudes
+  			{
+  				p = new GradientPaint(x, VIEW_HEIGHT, Color.GREEN,
   															x, VIEW_HEIGHT - barHeight, Color.RED);
+  			}
+  			else if (barHeight >= 130)
+  			{
+  				p = new GradientPaint(x, VIEW_HEIGHT, Color.GREEN,
+							x, VIEW_HEIGHT - barHeight, Color.ORANGE);
+  			}
+  			else if (barHeight >= 70)
+  			{
+  				p = new GradientPaint(x, VIEW_HEIGHT, Color.GREEN,
+							x, VIEW_HEIGHT - barHeight, Color.YELLOW);
+  			}
+  			else
+  				p = Color.GREEN;
   			
   			// draw a vertical line corresponding to the frequency
   			// represented by this x-position
-  			add(createThinBar(gp, x, VIEW_HEIGHT, x, VIEW_HEIGHT - barHeight));
+  			add(createThinBar(p, leftSide, VIEW_HEIGHT, leftSide, 
+  												VIEW_HEIGHT - barHeight, barWidth));
+  			leftSide += barWidth;
   		}
   	}
- // 	System.out.println("AFTER DRAWING FEATURES");
+ 
   }
   
   /**

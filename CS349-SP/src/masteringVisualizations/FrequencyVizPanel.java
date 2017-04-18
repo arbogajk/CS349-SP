@@ -19,9 +19,9 @@ public class FrequencyVizPanel extends JPanel
 		setLayout(null);
 		
 		// Setup the default Visualization
-  	Stage stage = new SpectrumAnimationStage(1,width,height);
+  	Stage stage = new SpectrumAnimationStage(1, width, height);
   	VisualizationView view = stage.getView();
-  	view.setBounds(0, 0,width , 300);
+  	view.setBounds(0, 0, width , height);
   	add(view);
   	stage.start();
 	}
