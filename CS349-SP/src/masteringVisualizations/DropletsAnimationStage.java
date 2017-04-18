@@ -1,12 +1,9 @@
 package masteringVisualizations;
-
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Arrays;
 
 import net.beadsproject.beads.analysis.featureextractors.FFT;
 import net.beadsproject.beads.analysis.featureextractors.PowerSpectrum;
@@ -14,24 +11,12 @@ import net.beadsproject.beads.analysis.segmenters.ShortFrameSegmenter;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.SamplePlayer;
-import visual.dynamic.described.DescribedSprite;
 import visual.dynamic.described.Stage;
-import visual.dynamic.described.TweeningSprite;
-import visual.statik.TransformableContent;
-import visual.statik.described.AggregateContent;
 import visual.statik.described.Content;
 
 
-/**
- * The Stage representing the oscilloscope animation.
- * 
- * @author Isaac Sumner
- * @version V1 4.9.17
- *
- */
-public class SpectrumAnimationStage extends Stage  
+public class DropletsAnimationStage extends Stage 
 {
-	
 	public static int VIEW_WIDTH;
 	public static int VIEW_HEIGHT;
 	
@@ -39,7 +24,7 @@ public class SpectrumAnimationStage extends Stage
 	private AudioContext ac;
 	private Content bg;
 	
-	public SpectrumAnimationStage(int arg0,int width, int height) 
+	public DropletsAnimationStage(int arg0, int width, int height) 
 	{
 		super(arg0);
 		VIEW_WIDTH = width;
@@ -69,7 +54,7 @@ public class SpectrumAnimationStage extends Stage
 		ac.out.addDependent(sfs);
 		draw();
 	}
-	
+
 	/**
 	 * Draws the bars after a new tick occurs
 	 */
@@ -89,18 +74,21 @@ public class SpectrumAnimationStage extends Stage
    * @param y2
    * @return A content representation of a line
    */
-  private Content createThinBar(Paint p, double x1, double y1, double x2, 
-  															double y2, int width)
+  private Content createLineSegment(Paint p, double x1, double y1, double x2, 
+  																double y2, int width)
   {
   	Path2D.Float path = new Path2D.Float();
-  	path.moveTo(x1, y1);
-  	path.lineTo(x2, y2);
-  	path.lineTo(x2 + width, y2);
-  	path.lineTo(x2 + width, y1);
-  	path.lineTo(x1, y1);
+  	//path.moveTo(x1, y1);
+  	//path.lineTo(x2, y2);
+  	//path.lineTo(x2 + width, y2);
+  	//path.lineTo(x2 + width, y1);
+  	//path.lineTo(x1, y1);
+  	//path.closePath();
+  	path.moveTo(x1, y2);
+  	path.lineTo(x1 + width, y2);
   	path.closePath();
   	
-  	return new Content(path, null, p, null);
+  	return new Content(path, Color.CYAN, p, null);
   }
   
   /**
@@ -160,8 +148,8 @@ public class SpectrumAnimationStage extends Stage
   			
   			// draw a vertical line corresponding to the frequency
   			// represented by this x-position
-  			add(createThinBar(p, leftSide, VIEW_HEIGHT, leftSide, 
-  												VIEW_HEIGHT - barHeight, barWidth));
+  			add(createLineSegment(p, leftSide, VIEW_HEIGHT, leftSide, 
+  														VIEW_HEIGHT - barHeight, barWidth));
   			leftSide += barWidth;
   		}
   	}
