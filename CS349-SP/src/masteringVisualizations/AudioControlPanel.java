@@ -33,6 +33,7 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -115,7 +116,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	
     	volume = new JProgressBar(JProgressBar.VERTICAL,0,100);
     	volume.setValue(0);
-    	volume.setBounds(WIDTH - 50, 5, (int)(WIDTH * 0.1),
+    	volume.setBounds((int)(this.getBounds().getMaxX() - 100), 5, (int)(WIDTH * 0.1),
     			(int)this.getBounds().getHeight() - 25);
  
     	volumeSlider = new JSlider(JSlider.VERTICAL,0,10,5);
@@ -127,13 +128,14 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	volumeSlider.setFont(fontVolume);
     	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
     	volumeSlider.setBackground(jmuPurple);
-    	volumeSlider.setBounds(WIDTH - 200, 
-    			5, (int)(WIDTH * 0.2), (int)this.getBounds().getHeight() - 25);
+    	volumeSlider.setBounds((int)(volume.getBounds().getMinX() - 120), 
+    			5, (int)(WIDTH * 0.15), (int)this.getBounds().getHeight() - 25);
     	volumeSlider.setForeground(jmuGold);
     	
      	files = buildDropDown();
     	files.setBounds(10, HEIGHT - 200, 200, 20);
     	
+    	/* Audio playback buttons */
     	playbutton = new JToggleButton(play);
     	playbutton.setBounds(5,(int)files.getBounds().getMaxY() + 100,60,60);
     	
@@ -149,13 +151,14 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	stopbutton.addActionListener(this);
     	
 
-    	JLabel volumeLabel = new JLabel("Volume");
+    	JLabel volumeLabel = new JLabel("Volume",SwingConstants.CENTER);
+    	
     	volumeLabel.setFont(font);
     	volumeLabel.setForeground(jmuGold);
-    	volumeLabel.setBounds((int)volumeSlider.getBounds().getCenterX() - 20,
-    			(int)volumeSlider.getBounds().getMaxY() - 5,70,30);
-    	System.out.println(MAX_HEIGHT - 10);
-    	
+    	volumeLabel.setBounds((int)volumeSlider.getBounds().getMaxX() - 80,
+    			(int)volumeSlider.getBounds().getMaxY() ,(int)(WIDTH * 0.1),20);
+    	System.out.println("Center volume slider " +(int)volumeSlider.getBounds().getCenterX());
+    	System.out.println("Center volume label " + (int)volumeLabel.getBounds().getCenterX());
     	samplePlayerInit();
     	
     	add(volumeSlider);

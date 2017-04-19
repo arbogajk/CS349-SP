@@ -184,12 +184,12 @@ private ResourceFinder finder;
 		filterFreqHPF = new SpinnerNumberModel(16000,1000,20000,100);
 	
 		lpfSpinner.setModel(filterFreqLPF);
-		lpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - 150, 
-				40,(int)(WIDTH * 0.15),30);
+		lpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - 100, 
+				40,(int)(WIDTH * 0.1),30);
 		
 		hpfSpinner.setModel(filterFreqHPF);
-		hpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - 150,
-				(int)lpfSpinner.getBounds().getMaxY() + 20,(int)(WIDTH *.15),30);
+		hpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - 100,
+				(int)lpfSpinner.getBounds().getMaxY() + 20,(int)(WIDTH *.1),30);
 		
 		lpfButton = new JToggleButton("LPF");
 		hpfButton = new JToggleButton("HPF");
