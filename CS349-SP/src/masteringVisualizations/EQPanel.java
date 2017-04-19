@@ -136,7 +136,7 @@ private ResourceFinder finder;
 		s250.setBounds(5,(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		s250.setForeground(jmuPurple);
-		f250.setBounds((int)s250.getBounds().getMinX() + 6,(int)s250.getBounds().getMaxY() +3,40,20);
+		f250.setBounds((int)s250.getBounds().getMinX() + 6,(int)s250.getBounds().getMaxY() +3,(int)(WIDTH * 0.08),20);
 		f250.setFont(labelsFont);
 		
 		s800 = new JSlider(JSlider.VERTICAL,-9,9,0);
@@ -148,7 +148,7 @@ private ResourceFinder finder;
 		s800.setForeground(jmuPurple);
 		s800.setBounds((int)s250.getBounds().getMaxX() + 20,(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
-		f800.setBounds((int)s800.getBounds().getMinX() + 6,(int)s800.getBounds().getMaxY() + 3,40,20);
+		f800.setBounds((int)s800.getBounds().getMinX() + 6,(int)s800.getBounds().getMaxY() + 3,(int)(WIDTH * 0.08),20);
 		f800.setFont(labelsFont);
 		s25= new JSlider(JSlider.VERTICAL,-9,9,0);
 		s25.setMajorTickSpacing(3);
@@ -161,7 +161,7 @@ private ResourceFinder finder;
 				(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
 		(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		f25.setBounds((int)s25.getBounds().getMinX() + 6,
-				(int)s25.getBounds().getMaxY() + 3,40,20);
+				(int)s25.getBounds().getMaxY() + 3,(int)(WIDTH * 0.08),20);
 		f25.setFont(labelsFont);
 		s8= new JSlider(JSlider.VERTICAL,-9,9,0);
 		s8.setMajorTickSpacing(3);
@@ -174,21 +174,8 @@ private ResourceFinder finder;
 				(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		f8.setBounds((int)s8.getBounds().getMinX() + 6,
-				(int)s8.getBounds().getMaxY() + 3,40,20);
+				(int)s8.getBounds().getMaxY() + 3,(int)(WIDTH * 0.08),20);
 		f8.setFont(labelsFont);
-		lpfButton = new JToggleButton("LPF");
-		hpfButton = new JToggleButton("HPF");
-		lpfButton.addActionListener(this);
-		hpfButton.addActionListener(this);
-		
-		lpfButton.setBounds(WIDTH - 200,20,(int)(WIDTH *0.1),30);
-		hpfButton.setBounds(WIDTH - 200,(int)lpfButton.getBounds().getMaxY() + 20,(int)(WIDTH * 0.1),30);
-		lpfButton.setFont(labelsFont);
-		hpfButton.setFont(labelsFont);
-		lpfButton.setForeground(jmuPurple);
-		lpfButton.setBackground(jmuGold);
-		hpfButton.setForeground(jmuPurple);
-		hpfButton.setBackground(jmuGold);
 		
 		
 		hpfSpinner = new JSpinner();
@@ -197,12 +184,28 @@ private ResourceFinder finder;
 		filterFreqHPF = new SpinnerNumberModel(16000,1000,20000,100);
 	
 		lpfSpinner.setModel(filterFreqLPF);
-		lpfSpinner.setBounds((int)lpfButton.getBounds().getMaxX() +4, 
-				(int)lpfButton.getBounds().getY(),(int)(WIDTH * 0.15),30);
+		lpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - 150, 
+				40,(int)(WIDTH * 0.15),30);
 		
 		hpfSpinner.setModel(filterFreqHPF);
-		hpfSpinner.setBounds((int)hpfButton.getBounds().getMaxX() + 6,
-				(int)hpfButton.getBounds().getY(),(int)(WIDTH *.15),30);
+		hpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - 150,
+				(int)lpfSpinner.getBounds().getMaxY() + 20,(int)(WIDTH *.15),30);
+		
+		lpfButton = new JToggleButton("LPF");
+		hpfButton = new JToggleButton("HPF");
+		lpfButton.addActionListener(this);
+		hpfButton.addActionListener(this);
+		
+		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX()- 70,(int)lpfSpinner.getBounds().getY(),(int)(WIDTH *0.1),30);
+		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - 70,(int)hpfSpinner.getBounds().getY(),(int)(WIDTH * 0.1),30);
+		lpfButton.setFont(labelsFont);
+		hpfButton.setFont(labelsFont);
+		lpfButton.setForeground(jmuPurple);
+		lpfButton.setBackground(jmuGold);
+		hpfButton.setForeground(jmuPurple);
+		hpfButton.setBackground(jmuGold);
+		
+		
 		
 		highShelfButton = new JToggleButton("H-Shelf");
 		highShelfButton.setForeground(jmuPurple);
@@ -213,10 +216,10 @@ private ResourceFinder finder;
 		
 		
 		highShelfButton.setBounds((int)hpfButton.getBounds().getX(), 
-				(int)hpfButton.getBounds().getMaxY() + 6,(int)(WIDTH * 0.15),30);
+				(int)hpfButton.getBounds().getMaxY() + 20,(int)(WIDTH * 0.15),30);
 		
 		lowShelfButton.setBounds((int)hpfButton.getBounds().getX(), 
-				(int)highShelfButton.getBounds().getMaxY() + 6, (int)(WIDTH * 0.15),30);
+				(int)highShelfButton.getBounds().getMaxY() + 20, (int)(WIDTH * 0.15),30);
 		
 		
 		sliderPanel.add(s250);
