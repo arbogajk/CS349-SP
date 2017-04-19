@@ -32,7 +32,8 @@ import net.beadsproject.beads.ugens.SamplePlayer;
 import visual.statik.sampled.ImageFactory;
 
 public class EQPanel extends JPanel implements ActionListener, ChangeListener {
-private ResourceFinder finder;
+	
+	private ResourceFinder finder;
 	
 	private Color jmuPurple = new Color(69,0,132);
 	private Color jmuGold = new Color(203,182,119);
@@ -55,7 +56,7 @@ private ResourceFinder finder;
 	private static int hShelfOn = 0;
 	private static int lShelfOn = 0;
 	private static Gain lpfGain, hpfGain, gain250, gain800, gain25, gain8, highShelfGain, lowShelfGain;	
-	private static Glide lpfGlide, hpfGlide;
+	private static Glide lpfGlide, hpfGlide, hshelfGlide, lshelfGlide;
 	private static BiquadFilter lowShelf, highShelf;
 		
 
@@ -198,8 +199,10 @@ private ResourceFinder finder;
 		lpfButton.addActionListener(this);
 		hpfButton.addActionListener(this);
 		
-		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX()-(int)(WIDTH * 0.1) - 5 ,(int)lpfSpinner.getBounds().getY(),(int)(WIDTH *0.1),30);
-		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - (int)(WIDTH * 0.1) - 5,(int)hpfSpinner.getBounds().getY(),(int)(WIDTH * 0.1),30);
+		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX()-(int)(WIDTH * 0.1) - 5 ,
+				(int)lpfSpinner.getBounds().getY(),(int)(WIDTH *0.1),30);
+		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - (int)(WIDTH * 0.1) - 5,
+				(int)hpfSpinner.getBounds().getY(),(int)(WIDTH * 0.1),30);
 		lpfButton.setFont(labelsFont);
 		hpfButton.setFont(labelsFont);
 		lpfButton.setForeground(jmuPurple);
@@ -251,9 +254,9 @@ private ResourceFinder finder;
 		hpf = new OnePoleFilter(ac,0.0f);
 		
 		lowShelf = new BiquadFilter(ac,2,BiquadFilter.LOW_SHELF);
-		lowShelf.setFrequency(80.0f);
+		lowShelf.setFrequency(120.0f);
 		highShelf = new BiquadFilter(ac, 2, BiquadFilter.HIGH_SHELF);
-		highShelf.setFrequency(9000.0f);
+		highShelf.setFrequency(10000.0f);
 		
 		//add the sample player as an input to the filters
 		lpf.addInput(sp);
@@ -268,8 +271,10 @@ private ResourceFinder finder;
 		lpfGain.addInput(lpf);
 		hpfGain.addInput(hpf);
 		
-		lowShelfGain = new Gain(ac, 2, 0.0f);
-		highShelfGain = new Gain(ac, 2, 0.0f);
+		hshelfGlide = new Glide(ac,0.1f,20);
+		lshelfGlide = new Glide(ac,0.1f,20);
+		lowShelfGain = new Gain(ac, 2, lshelfGlide);
+		highShelfGain = new Gain(ac, 2, hshelfGlide);
 		
 		lowShelfGain.addInput(lowShelf);
 		highShelfGain.addInput(highShelf);
@@ -278,6 +283,7 @@ private ResourceFinder finder;
 		ac.out.addInput(highShelfGain);
 		ac.out.addInput(lpfGain);
 		ac.out.addInput(hpfGain);
+		
 		
 		/* Peak Filters */
 		peakFilter250 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
@@ -326,7 +332,9 @@ private ResourceFinder finder;
 		ac.out.addInput(gain8);
 
 	}
-	
+	/*
+	 * This fu
+	 */
 	public static void resetFilters()
 	{
 		lpf.setFrequency(0.0f);
@@ -350,19 +358,17 @@ private ResourceFinder finder;
 	}
 	
 	
-	
+	/*
+	 *	This method signals eq filters to change when a change in the slider is detected 
+	 */
 	@Override
 	public void stateChanged(ChangeEvent e) 
 	{
 
 			if(e.getSource().equals(s250))
 			{
-				
 					peakFilter250.setGain(s250.getValue());
 					gain250.setGain(s250.getValue() * 0.5f);
-					System.out.println("250Gain is " + gain250.getGain());
-	
-			
 			}
 			else if(e.getSource().equals(s800)){
 				peakFilter800.setGain(s800.getValue());
@@ -376,9 +382,7 @@ private ResourceFinder finder;
 				peakFilter8.setGain(s8.getValue());
 				gain8.setGain(s8.getValue() * 0.5f);
 			}
-		
 
-		
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -424,22 +428,27 @@ private ResourceFinder finder;
 		else if(e.getSource().equals(lowShelfButton))
 		{
 			if(lShelfOn == 0){
-				lowShelfGain.setGain(4.0f);
+				lowShelf.setGain(2.0f);
+				lowShelfGain.setGain(2.0f);
+				lshelfGlide.setValue(2.0f);
 				lShelfOn = 1;
 			}
 			else{
-				lowShelfGain.setGain(0.0f);
+				lowShelf.setGain(0.0f);
+				lshelfGlide.setValue(0.0f);
 				lShelfOn = 0;
 			}
 		}
 		else if(e.getSource().equals(highShelfButton))
 		{
 			if(hShelfOn == 0){
-				highShelfGain.setGain(4.0f);
+				highShelf.setGain(2.0f);
+				hshelfGlide.setValue(2.0f);
 				hShelfOn = 1;
 			}
 			else{				
-				highShelfGain.setGain(0.0f);
+				highShelf.setGain(0.0f);
+				hshelfGlide.setValue(0.0f);
 				hShelfOn = 0;
 			}
 		}
