@@ -186,11 +186,11 @@ private ResourceFinder finder;
 		filterFreqHPF = new SpinnerNumberModel(16000,1000,20000,100);
 	
 		lpfSpinner.setModel(filterFreqLPF);
-		lpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - 100, 
+		lpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - (int)(WIDTH *.15) - 30, 
 				40,(int)(WIDTH * 0.15),30);
 		
 		hpfSpinner.setModel(filterFreqHPF);
-		hpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - 100,
+		hpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - (int)(WIDTH *.15) - 30,
 				(int)lpfSpinner.getBounds().getMaxY() + 20,(int)(WIDTH *.15),30);
 		
 		lpfButton = new JToggleButton("LPF");
@@ -198,8 +198,8 @@ private ResourceFinder finder;
 		lpfButton.addActionListener(this);
 		hpfButton.addActionListener(this);
 		
-		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX()- 40,(int)lpfSpinner.getBounds().getY(),(int)(WIDTH *0.1),30);
-		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - 40,(int)hpfSpinner.getBounds().getY(),(int)(WIDTH * 0.1),30);
+		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX()-(int)(WIDTH * 0.1) - 5 ,(int)lpfSpinner.getBounds().getY(),(int)(WIDTH *0.1),30);
+		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - (int)(WIDTH * 0.1) - 5,(int)hpfSpinner.getBounds().getY(),(int)(WIDTH * 0.1),30);
 		lpfButton.setFont(labelsFont);
 		hpfButton.setFont(labelsFont);
 		lpfButton.setForeground(jmuPurple);

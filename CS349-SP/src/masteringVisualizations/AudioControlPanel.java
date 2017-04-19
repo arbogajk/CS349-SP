@@ -116,7 +116,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	
     	volume = new JProgressBar(JProgressBar.VERTICAL,0,100);
     	volume.setValue(0);
-    	volume.setBounds((int)(this.getBounds().getWidth() - (int)WIDTH*0.1), 5, (int)(WIDTH * 0.1),
+    	volume.setBounds((int)(this.getBounds().getMaxX() - (int)WIDTH*0.1) - 10, 5, (int)(WIDTH * 0.1),
     			(int)this.getBounds().getHeight() - 25);
  
     	volumeSlider = new JSlider(JSlider.VERTICAL,0,10,5);
@@ -128,7 +128,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	volumeSlider.setFont(fontVolume);
     	volumeSlider.setBorder(new LineBorder(jmuGold,1,true));
     	volumeSlider.setBackground(jmuPurple);
-    	volumeSlider.setBounds((int)(volume.getBounds().getMinX() - 80), 
+    	volumeSlider.setBounds((int)(volume.getBounds().getMinX() - (int)(WIDTH * 0.15) - 10), 
     			5, (int)(WIDTH * 0.15), (int)this.getBounds().getHeight() - 25);
     	volumeSlider.setForeground(jmuGold);
     	
