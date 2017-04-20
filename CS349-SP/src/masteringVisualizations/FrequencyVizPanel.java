@@ -1,5 +1,8 @@
 package masteringVisualizations;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
@@ -12,28 +15,40 @@ import visual.dynamic.described.Stage;
  * @author Isaac Sumner
  *
  */
-public class FrequencyVizPanel extends JPanel 
+public class FrequencyVizPanel extends JPanel implements ActionListener
 {
 	private JComboBox<String> cbox;
+	private AudioAnimationStage stage;
+	private int width;
+	private int height;
+	private VisualizationView view;
 	
 	public FrequencyVizPanel(int width, int height)
 	{
 		super();
+		this.width = width;
+		this.height = height;
 		setLayout(null);
 		
 		// Setup the default Visualization
-  	//Stage stage = new DropletsAnimationStage(1, width, height - 10);
-		Stage stage = new SpectrumAnimationStage(1, width, height - 10);
-  	VisualizationView view = stage.getView();
+		stage = new AudioAnimationStage(1, width, height - 10, 0);
+  	view = stage.getView();
   	view.setBounds(0, 0, width , height - 20);
   	add(view);
   	stage.start();
   	
   	// Create the combo box to select the animation
-  	String[] animations = {"Spectrum", "Droplets"};
-  	JComboBox<String> cbox = new JComboBox<>(animations);
-  	//cbox.addActionListener(this);
+  	String[] animations = {"Spectrum", "Droplets", "Stalactite"};
+  	cbox = new JComboBox<>(animations);
+  	cbox.addActionListener(this);
   	cbox.setBounds(5, height - 20, 100, 20);
   	add(cbox);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+		int anim = cbox.getSelectedIndex();
+		stage.setAnimationType(anim);
 	}
 }

@@ -3,6 +3,7 @@ package masteringVisualizations;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Paint;
+import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -23,13 +24,13 @@ import visual.statik.described.Content;
 
 
 /**
- * The Stage representing the oscilloscope animation.
+ * The Stage representing the audio animation.
  * 
  * @author Isaac Sumner
  * @version V1 4.9.17
  *
  */
-public class SpectrumAnimationStage extends Stage  
+public class AudioAnimationStage extends Stage  
 {
 	
 	public static int VIEW_WIDTH;
@@ -38,12 +39,14 @@ public class SpectrumAnimationStage extends Stage
 	private PowerSpectrum ps;
 	private AudioContext ac;
 	private Content bg;
+	private int animationType;
 	
-	public SpectrumAnimationStage(int arg0,int width, int height) 
+	public AudioAnimationStage(int arg0, int width, int height, int animationType) 
 	{
 		super(arg0);
 		VIEW_WIDTH = width;
 		VIEW_HEIGHT = height;
+		this.animationType = animationType;
 		bg = new Content(createBackground(), null, Color.BLACK, null);
 		add(bg);
 		
@@ -67,7 +70,7 @@ public class SpectrumAnimationStage extends Stage
 		fft.addListener(ps);
 		
 		ac.out.addDependent(sfs);
-		draw();
+		//draw();
 	}
 	
 	/**
@@ -77,17 +80,29 @@ public class SpectrumAnimationStage extends Stage
 	{
 		clear();
 		add(bg);
-		draw();
+		
+		switch (animationType) 
+		{
+			case 0:
+				drawSpectrum();
+				break;
+			case 1:
+				drawDroplets();
+				break;
+			case 2:
+				drawStalactite();
+				break;
+		}
 	}
   
   /**
-   * Makes a line given two points.
+   * Makes a thin bar.
    * 
    * @param x1
    * @param y1
    * @param x2
    * @param y2
-   * @return A content representation of a line
+   * @return A content representation of a bar
    */
   private Content createThinBar(Paint p, double x1, double y1, double x2, 
   															double y2, int width)
@@ -103,27 +118,30 @@ public class SpectrumAnimationStage extends Stage
   	return new Content(path, null, p, null);
   }
   
+  private Content createLineSegment(double x1, double y1, double x2, 
+  																	double y2, int width)
+	{
+		Path2D.Float path = new Path2D.Float();
+		path.moveTo(x1, y2);
+		path.lineTo(x1 + width, y2);
+		path.closePath();
+		
+		return new Content(path, Color.CYAN, Color.CYAN, null);
+	}
+  
   /**
    * Routine to draw the features
    */
-  private void draw()
+  private void drawSpectrum()
   {
   	// Get the features
   	float[] features = ps.getFeatures();
   	
   	if (features != null)
   	{
-  	  // Get the max value for scaling
-//    	float[] copy = Arrays.copyOf(features, features.length);
-//    	Arrays.sort(copy);
-//    	float max = copy[copy.length - 1];
-//    	float scale = VIEW_HEIGHT / max;
-    	
     	// Draw the bars
-  		//int barWidth = VIEW_WIDTH / features.length;
   		int barWidth = 1;
   		barWidth = features.length / VIEW_WIDTH;
-  		System.out.println("LENGTH: " + features.length);
   		int leftSide = 0;
   		for(int x = 0; x < VIEW_WIDTH; x++)
   		{
@@ -134,8 +152,6 @@ public class SpectrumAnimationStage extends Stage
   			// calculate the bar height for this feature
   			int barHeight = Math.min((int)(features[featureIndex] *
   					VIEW_HEIGHT), VIEW_HEIGHT - 5);
-  			
-  			//int barHeight = (int)((features[featureIndex] * VIEW_HEIGHT) * scale);
   			
   			// Create the GradientPaint
   			Paint p; 
@@ -168,6 +184,75 @@ public class SpectrumAnimationStage extends Stage
  
   }
   
+  private void drawDroplets()
+  {
+  	// Get the features
+  	float[] features = ps.getFeatures();
+  	
+  	if (features != null)
+  	{
+    	// Draw the bars
+  		//int barWidth = VIEW_WIDTH / features.length;
+  		int barWidth = 1;
+  		barWidth = features.length / VIEW_WIDTH;
+  		System.out.println("LENGTH: " + features.length);
+  		int leftSide = 0;
+  		for(int x = 0; x < VIEW_WIDTH; x++)
+  		{
+  			// figure out which featureIndex corresponds to this x-
+  			// position
+  			int featureIndex = (x * features.length) / VIEW_WIDTH;
+  			
+  			// calculate the bar height for this feature
+  			int barHeight = Math.min((int)(features[featureIndex] *
+  					VIEW_HEIGHT), VIEW_HEIGHT - 5);
+  			
+  			// draw a vertical line corresponding to the frequency
+  			// represented by this x-position
+  			add(createLineSegment(leftSide, VIEW_HEIGHT, leftSide, 
+  														VIEW_HEIGHT - barHeight, barWidth));
+  			leftSide += barWidth;
+  		}
+  	}
+  }
+  
+  private void drawStalactite()
+  {
+  	// Get the features
+  	float[] features = ps.getFeatures();
+  	
+  	if (features != null)
+  	{
+    	// Draw the bars
+  		int barWidth = 1;
+  		barWidth = features.length / VIEW_WIDTH;
+  		int leftSide = 0;
+  		int prevX = 0;
+  		int prevY = 0;
+  		for(int x = 0; x < VIEW_WIDTH; x++)
+  		{
+  			// figure out which featureIndex corresponds to this x-
+  			// position
+  			int featureIndex = (x * features.length) / VIEW_WIDTH;
+  			
+  			// calculate the bar height for this feature
+  			int barHeight = Math.min((int)(features[featureIndex] *
+  					VIEW_HEIGHT), VIEW_HEIGHT - 5);
+  			
+  			// draw a vertical line corresponding to the frequency
+  			// represented by this x-position
+  			
+				Line2D.Float l = new Line2D.Float(prevX + barWidth, prevY, 
+															leftSide, barHeight - VIEW_HEIGHT);
+				add(new Content(l, Color.YELLOW, null, null));
+  	
+				prevX = leftSide;
+  			prevY = barHeight;
+  			leftSide += barWidth;
+  		}
+  	}
+  }
+  
   /**
    * Creates the background shape for the view
    * 
@@ -177,4 +262,24 @@ public class SpectrumAnimationStage extends Stage
 	{
 		return new Rectangle2D.Float(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
   }
+	
+	/**
+	 * Animation type setter
+	 * 
+	 * @param animationType
+	 */
+	public void setAnimationType(int animationType)
+	{
+		this.animationType = animationType;
+	}
+	
+	/**
+	 * Animation type getter
+	 * 
+	 * @return the animation type
+	 */
+	public int getAnimationType()
+	{
+		return animationType;
+	}
 }

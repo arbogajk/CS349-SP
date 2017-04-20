@@ -19,7 +19,7 @@ import io.*;
 import masteringVisualizations.AudioControlPanel;
 import masteringVisualizations.EQPanel;
 import masteringVisualizations.FrequencyVizPanel;
-import masteringVisualizations.SpectrumAnimationStage;
+import masteringVisualizations.AudioAnimationStage;
 import visual.*;
 import visual.dynamic.described.DescribedSprite;
 import visual.dynamic.described.SampledSprite;
