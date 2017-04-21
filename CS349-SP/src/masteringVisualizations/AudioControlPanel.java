@@ -34,6 +34,8 @@ import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -304,18 +306,24 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 
 	public void updateRMS()
 	{
-		Thread thread = new Thread(){
+		
+		 	Thread thread = new Thread(){
 			public void run()
 			{
 				while(getAC().isRunning())
 				{
 					float value = rms.getValue() * 10000;
-					volume.setValue((int)value);
+					//System.out.println((int)value);
+					synchronized(this){
+						volume.setValue((int)value);
+					}
+					
 				}
 				
 			}
 		};
-		thread.start();	
+		thread.start();
+		
 	}
 	
 	/**
