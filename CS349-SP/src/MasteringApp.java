@@ -64,12 +64,14 @@ public class MasteringApp extends AbstractMultimediaApp
     
     	PANELHEIGHT = (int) MAX_HEIGHT /3;
     	System.out.println(MAX_WIDTH);
-    	AudioControlPanel audioControls = new AudioControlPanel(MAX_WIDTH, MAX_HEIGHT, PANELHEIGHT);
+    	AudioControlPanel audioControls = 
+    			new AudioControlPanel(MAX_WIDTH, MAX_HEIGHT, PANELHEIGHT);
     	
         	
        	contentPane.add(audioControls);
 
-    	JPanel fvp = new FrequencyVizPanel(MAX_WIDTH,PANELHEIGHT);
+    	JPanel fvp = 
+    			new FrequencyVizPanel(audioControls.getAC(), MAX_WIDTH, PANELHEIGHT);
     	
     	fvp.setBounds(0, 0, MAX_WIDTH, PANELHEIGHT);
      	
@@ -77,11 +79,13 @@ public class MasteringApp extends AbstractMultimediaApp
     	contentPane.add(fvp);
     	
     	
-    	EQPanel eqPanel = new EQPanel(MAX_WIDTH,PANELHEIGHT);
+    	EQPanel eqPanel = new EQPanel(audioControls.getAC(), audioControls.getSP(), 
+    																MAX_WIDTH,PANELHEIGHT);
     	eqPanel.setLayout(null);
     	eqPanel.setBounds(0,(int)fvp.getBounds().getMaxY(),MAX_WIDTH,PANELHEIGHT);
     	contentPane.add(eqPanel);
-      audioControls.setBounds(0, (int)eqPanel.getBounds().getMaxY(), MAX_WIDTH, PANELHEIGHT );	
+      audioControls.setBounds(0, (int)eqPanel.getBounds().getMaxY(), 
+      												MAX_WIDTH, PANELHEIGHT);	
     	
     }	
 

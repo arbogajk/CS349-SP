@@ -61,13 +61,14 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		
 
 
-	public static AudioContext ac;
-	public static SamplePlayer sp;
+	public AudioContext ac;
+	public SamplePlayer sp;
 	
 	private final int WIDTH;
 	private final int HEIGHT;
 	
-	public EQPanel(int width, int height)
+	public EQPanel(AudioContext ac, SamplePlayer sp, 
+								 int width, int height)
 	{
 		super();
 		WIDTH = width;
@@ -87,9 +88,9 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		
 		buildEQSliders();
 		
-		ac = AudioControlPanel.getAC();
+		this.ac = ac;
 	
-		sp = AudioControlPanel.getSP();
+		this.sp = sp;
 		
 		initFilters();
 				

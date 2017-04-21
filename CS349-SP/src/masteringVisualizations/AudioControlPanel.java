@@ -78,8 +78,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 
 	
 
-	private static AudioContext ac;				//An audio context
-	private static SamplePlayer sp;				//The audio player that takes sampled content
+	private AudioContext ac;				//An audio context
+	private SamplePlayer sp;				//The audio player that takes sampled content
 	private static Gain masterGain;							//Gain object for the overall master volume
 	
 	private final int WIDTH;
@@ -299,7 +299,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	 * 
 	 * @return the AudioContext
 	 */
-	public static AudioContext getAC()
+	public AudioContext getAC()
 	{
 		return ac;
 	}
@@ -309,7 +309,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	 * 
 	 * @return the AudioContext
 	 */
-	public static SamplePlayer getSP()
+	public SamplePlayer getSP()
 	{
 		return sp;
 	}

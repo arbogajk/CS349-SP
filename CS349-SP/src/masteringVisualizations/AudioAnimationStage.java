@@ -41,7 +41,8 @@ public class AudioAnimationStage extends Stage
 	private Content bg;
 	private int animationType;
 	
-	public AudioAnimationStage(int arg0, int width, int height, int animationType) 
+	public AudioAnimationStage(AudioContext ac, int arg0, int width, 
+														 int height, int animationType) 
 	{
 		super(arg0);
 		VIEW_WIDTH = width;
@@ -51,13 +52,13 @@ public class AudioAnimationStage extends Stage
 		add(bg);
 		
 		
-		ac = AudioControlPanel.getAC();
+		this.ac = ac;
 		
 		// set up a master gain object
-		Gain g = new Gain(ac, 2, 0.3f);
-		ac.out.addInput(g);
-		SamplePlayer sp = AudioControlPanel.getSP();
-		g.addInput(sp);
+		//Gain g = new Gain(ac, 2, 0.3f);
+		//ac.out.addInput(g);
+		//SamplePlayer sp = AudioControlPanel.getSP();
+		//g.addInput(sp);
 		
 		ShortFrameSegmenter sfs = new ShortFrameSegmenter(ac);
 		sfs.addInput(ac.out);
@@ -70,7 +71,6 @@ public class AudioAnimationStage extends Stage
 		fft.addListener(ps);
 		
 		ac.out.addDependent(sfs);
-		//draw();
 	}
 	
 	/**
@@ -84,7 +84,7 @@ public class AudioAnimationStage extends Stage
 		switch (animationType) 
 		{
 			case 0:
-				drawSpectrum();
+				draw();
 				break;
 			case 1:
 				drawDroplets();
@@ -216,6 +216,9 @@ public class AudioAnimationStage extends Stage
   	}
   }
   
+  /**
+   * Draws the upside-down spectrum animation
+   */
   private void drawStalactite()
   {
   	// Get the features
@@ -248,6 +251,51 @@ public class AudioAnimationStage extends Stage
   	
 				prevX = leftSide;
   			prevY = barHeight;
+  			leftSide += barWidth;
+  		}
+  	}
+  }
+  
+  private void draw()
+  {
+  	// Get the features
+  	float[] features = ps.getFeatures();
+  	
+  	if (features != null)
+  	{
+    	// Draw the bars
+  		int barWidth = 1;
+  		barWidth = features.length / VIEW_WIDTH;
+  		int leftSide = 0;
+  		int prevX = 0;
+  		int prevY = 0;
+  		for(int x = 0; x < VIEW_WIDTH; x++)
+  		{
+  			// figure out which featureIndex corresponds to this x-
+  			// position
+  			int featureIndex = (x * features.length) / VIEW_WIDTH;
+  			
+  			// calculate the bar height for this feature
+  			int barHeight = Math.min((int)(features[featureIndex] *
+  					VIEW_HEIGHT), VIEW_HEIGHT - 5);
+  			
+  			// draw a vertical line corresponding to the frequency
+  			// represented by this x-position
+  			Line2D.Float l;
+  			if (x == 0)
+  			{
+  				l = new Line2D.Float(leftSide, barHeight - VIEW_HEIGHT, 
+  						leftSide+1, barHeight - VIEW_HEIGHT);
+  			}
+  			else
+  			{
+  				//l = new Line2D.Float(prevX, prevY, leftSide, barHeight - VIEW_HEIGHT);
+  				l = new Line2D.Float(0, VIEW_HEIGHT/2, VIEW_WIDTH, VIEW_HEIGHT/2);
+  			}
+				add(new Content(l, Color.YELLOW, null, null));
+  	
+				prevX = leftSide;
+  			prevY = barHeight - VIEW_HEIGHT;
   			leftSide += barWidth;
   		}
   	}
