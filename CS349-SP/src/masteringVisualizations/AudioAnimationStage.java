@@ -84,13 +84,16 @@ public class AudioAnimationStage extends Stage
 		switch (animationType) 
 		{
 			case 0:
-				draw();
+				drawSpectrum();
 				break;
 			case 1:
 				drawDroplets();
 				break;
 			case 2:
 				drawStalactite();
+				break;
+			case 3:
+				drawHeartbeat();
 				break;
 		}
 	}
@@ -256,7 +259,7 @@ public class AudioAnimationStage extends Stage
   	}
   }
   
-  private void draw()
+  private void drawHeartbeat()
   {
   	// Get the features
   	float[] features = ps.getFeatures();
@@ -282,20 +285,37 @@ public class AudioAnimationStage extends Stage
   			// draw a vertical line corresponding to the frequency
   			// represented by this x-position
   			Line2D.Float l;
-  			if (x == 0)
+  			if (barHeight > (VIEW_HEIGHT/2))
   			{
-  				l = new Line2D.Float(leftSide, barHeight - VIEW_HEIGHT, 
-  						leftSide+1, barHeight - VIEW_HEIGHT);
+  				if (x == 0)
+    			{
+    				l = new Line2D.Float(leftSide, barHeight - VIEW_HEIGHT, 
+    						leftSide+1, barHeight - VIEW_HEIGHT);
+    			}
+    			else
+    			{
+    				l = new Line2D.Float(prevX, prevY, leftSide, barHeight - VIEW_HEIGHT);
+    				//l = new Line2D.Float(0, VIEW_HEIGHT/2, VIEW_WIDTH, VIEW_HEIGHT/2);
+    			}
+  				prevY = barHeight - VIEW_HEIGHT;
   			}
   			else
   			{
-  				//l = new Line2D.Float(prevX, prevY, leftSide, barHeight - VIEW_HEIGHT);
-  				l = new Line2D.Float(0, VIEW_HEIGHT/2, VIEW_WIDTH, VIEW_HEIGHT/2);
+	  			if (x == 0)
+	  			{
+	  				l = new Line2D.Float(leftSide, VIEW_HEIGHT/2 - barHeight, 
+	  						leftSide+1, VIEW_HEIGHT/2 - barHeight);
+	  			}
+	  			else
+	  			{
+	  				l = new Line2D.Float(prevX, prevY, leftSide, VIEW_HEIGHT/2 - barHeight);
+	  				//l = new Line2D.Float(0, VIEW_HEIGHT/2, VIEW_WIDTH, VIEW_HEIGHT/2);
+	  			}
+	  			prevY = VIEW_HEIGHT/2 - barHeight;
   			}
-				add(new Content(l, Color.YELLOW, null, null));
-  	
+				add(new Content(l, Color.GREEN, null, null));
+				//System.out.printf("PrevX: %d, PrevY: %d\n", prevX, prevY);
 				prevX = leftSide;
-  			prevY = barHeight - VIEW_HEIGHT;
   			leftSide += barWidth;
   		}
   	}
