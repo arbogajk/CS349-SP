@@ -40,8 +40,8 @@ import javax.swing.event.ChangeListener;
 
 import visual.statik.sampled.ImageFactory;
 import io.ResourceFinder;
-
-
+import net.beadsproject.beads.analysis.featureextractors.Power;
+import net.beadsproject.beads.analysis.segmenters.ShortFrameSegmenter;
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.data.Sample;
 import net.beadsproject.beads.data.SampleManager;
@@ -49,6 +49,7 @@ import net.beadsproject.beads.ugens.Clip;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.OnePoleFilter;
+import net.beadsproject.beads.ugens.RMS;
 import net.beadsproject.beads.ugens.SamplePlayer;
 
 
@@ -80,6 +81,9 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 
 	private AudioContext ac;				//An audio context
 	private SamplePlayer sp;				//The audio player that takes sampled content
+	private Power power;
+	private ShortFrameSegmenter sfs;
+	private RMS rms;
 	private static Gain masterGain;							//Gain object for the overall master volume
 	
 	private final int WIDTH;
@@ -114,7 +118,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	Icon stop = new ImageIcon(stopIcon.getScaledInstance((int)(WIDTH * 0.085), (int)(WIDTH * 0.085), 0));
     	
     	
-    	volume = new JProgressBar(JProgressBar.VERTICAL,0,100);
+    	volume = new JProgressBar(JProgressBar.VERTICAL,0,2000);
     	volume.setValue(0);
     	volume.setBounds((int)(this.getBounds().getMaxX() - (int)WIDTH*0.1) - 10, 5, (int)(WIDTH * 0.1),
     			(int)this.getBounds().getHeight() - 25);
@@ -199,8 +203,12 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		ac.out.setGain(0.08f);
 		masterGain.setGain(volumeSlider.getValue() );
 	    sp.setKillOnEnd(false);
-	 
-
+	    
+	    rms = new RMS(ac,2,1024);
+	    power = new Power();
+	    rms.addInput(ac.out);
+	    ac.out.addDependent(rms);
+	    
 		
 	
 	}
@@ -249,6 +257,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 				ac.start();
 				currVol = volumeSlider.getValue();
 				prevVol = currVol;
+				updateRMS();
 			}	
 			System.out.println("Initial Gain" + masterGain.getGain());
 		}
@@ -293,6 +302,21 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	
 	}
 
+	public void updateRMS()
+	{
+		Thread thread = new Thread(){
+			public void run()
+			{
+				while(getAC().isRunning())
+				{
+					float value = rms.getValue() * 10000;
+					volume.setValue((int)value);
+				}
+				
+			}
+		};
+		thread.start();	
+	}
 	
 	/**
 	 * Getter for the AudioContext
