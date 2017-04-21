@@ -54,77 +54,84 @@ import net.beadsproject.beads.ugens.OnePoleFilter;
 import net.beadsproject.beads.ugens.RMS;
 import net.beadsproject.beads.ugens.SamplePlayer;
 
-
+/**
+ * The AudioControlPanel builds the controls panel for audio playback and
+ * volume control and meter of the audio signal.
+ * @author Joey Arbogast
+ * 
+ *
+ */
 
 public class AudioControlPanel extends JPanel implements ActionListener,ChangeListener{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ResourceFinder finder;
+	private ResourceFinder finder;	//A resource finder for getting audio files and images
 	
+	//Color and fonts used in the application
 	private Color jmuPurple = new Color(69,0,132);
 	private Color jmuGold = new Color(203,182,119);
 	private Font font, fontVolume, title;
 
-	private int currVol, prevVol;
+	private int currVol, prevVol;	//
 	
-
-	private JPanel controlsPanel;
-	
+	//These are all the JComponents used for audio control
 	private JSlider volumeSlider;
-	private EQPanel eqPanel;
 	private JProgressBar volume;
 	private JComboBox<String> files;
-	
 	private JToggleButton playbutton, pausebutton, stopbutton;
 
-	
-
+	//These are from the Beads library
 	private AudioContext ac;				//An audio context
 	private SamplePlayer sp;				//The audio player that takes sampled content
-	private Power power;
-	private ShortFrameSegmenter sfs;
-	private RMS rms;
-	private static Gain masterGain;							//Gain object for the overall master volume
+	private Power power;					//This is used for computing the RMS level	
+	private RMS rms;						//This computes the RMS level of an audio signal
+	private static Gain masterGain;			//Gain object for controlling the gain of an audio signal
 	
-	private final int WIDTH;
-	private final int HEIGHT;
+	private final int WIDTH;				//Width dimension of the panel
+	private final int HEIGHT;				//Height dimension of the panel
 	private final int MAX_HEIGHT;
 	
+	/**
+	 * This constructor creates the audio control panel and adds the components to it.
+	 * @param width		JPanel width
+	 * @param max_height	JPanel maxium height
+	 * @param height	Jpanel Height
+	 */
 	public AudioControlPanel(int width, int max_height, int height){
 		super();	
 		WIDTH = width;
 		HEIGHT = height;
 		MAX_HEIGHT = max_height;
 		
+		//Create the fonts
 		font = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
 		fontVolume = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
 		title = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
-
-		
-		
+		//Set the layout, bounds and background color of the JPanel
 		setLayout(null);
 		setBounds(0,0, WIDTH, HEIGHT);
 		setBackground(jmuPurple);
 		
-
+		//Get a resource finder instance and load the images for the play, pause and stop buttons
     	finder = ResourceFinder.createInstance(this);
     	ImageFactory imgFactory = new ImageFactory(finder);
     	Image pIcon = imgFactory.createBufferedImage("/img/playButton.png", 4);
     	Image pauseIcon = imgFactory.createBufferedImage("/img/pauseButton.png",4);
     	Image stopIcon = imgFactory.createBufferedImage("/img/stopButton.png",4);
-    	
+    	//Creates an icon from the image and scales it according to the screen dimensions
     	Icon play = new ImageIcon(pIcon.getScaledInstance((int)(WIDTH * 0.085), (int)(WIDTH * 0.085), 0));
     	Icon pause = new ImageIcon(pauseIcon.getScaledInstance((int)(WIDTH * 0.085), (int)(WIDTH * 0.085), 0));
     	Icon stop = new ImageIcon(stopIcon.getScaledInstance((int)(WIDTH * 0.085), (int)(WIDTH * 0.085), 0));
     	
-    	
+    	//Construct the RMS level meter (JProgressBar)
     	volume = new JProgressBar(JProgressBar.VERTICAL,0,2000);
     	volume.setValue(0);
     	volume.setBounds((int)(this.getBounds().getMaxX() - (int)WIDTH*0.1) - 10, 5, (int)(WIDTH * 0.1),
     			(int)this.getBounds().getHeight() - 25);
- 
+    	
+    	//Create a slider for the volume control
     	volumeSlider = new JSlider(JSlider.VERTICAL,0,10,5);
     	volumeSlider.addChangeListener(this);
     	volumeSlider.setMajorTickSpacing(1);
@@ -138,13 +145,13 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     			5, (int)(WIDTH * 0.15), (int)this.getBounds().getHeight() - 25);
     	volumeSlider.setForeground(jmuGold);
     	
+    	//Create the file selector drop down box
      	files = buildDropDown();
     	files.setBounds(10, HEIGHT - 200, 200, 20);
     	
     	/* Audio playback buttons */
     	playbutton = new JToggleButton(play);
     	playbutton.setBounds(5,(int)files.getBounds().getMaxY() + 100,60,60);
-    	
     	playbutton.addActionListener(this);
     	
     	pausebutton = new JToggleButton(pause);
@@ -156,17 +163,17 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	stopbutton.setBounds(125,(int)files.getBounds().getMaxY() + 100,60,60);
     	stopbutton.addActionListener(this);
     	
-
+    	//Create a label for the volume control
     	JLabel volumeLabel = new JLabel("Volume",SwingConstants.CENTER);
-    	
     	volumeLabel.setFont(font);
     	volumeLabel.setForeground(jmuGold);
     	volumeLabel.setBounds((int)volumeSlider.getBounds().getMaxX() - 80,
     			(int)volumeSlider.getBounds().getMaxY() ,(int)(WIDTH * 0.1),20);
-    	System.out.println("Center volume slider " +(int)volumeSlider.getBounds().getCenterX());
-    	System.out.println("Center volume label " + (int)volumeLabel.getBounds().getCenterX());
+    	
+    	//Initialize the sample player
     	samplePlayerInit();
     	
+    	//Add all the components to the JPanel
     	add(volumeSlider);
     	add(volumeLabel);
     	add(files);
@@ -176,16 +183,20 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	add(stopbutton);
     
 	}
-	
+	/**
+	 * The samplePlayerInit method initializes all of the sample player
+	 * items needed for audio playback for Beads.
+	 */
 	public void samplePlayerInit(){
-		
+		//Store the selected audio file name
 		String	audioFile = files.getSelectedItem().toString();
+		//Get an inputstream using the resourcefinder and the audio file name
 		InputStream sourceStream = finder.findInputStream("/audio/"+audioFile);
 		
 		Sample sample = null;
 		try {
-			sample = new Sample(sourceStream);
-			System.out.println(sample.getLength());
+			sample = new Sample(sourceStream);		//Create a sample from the inputstream
+		
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			System.out.println("could not find " + audioFile );
@@ -194,28 +205,27 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		ac = new AudioContext();
-		sp = new SamplePlayer(ac, sample);
+		ac = new AudioContext();				//Construct an AudioContext object
+		sp = new SamplePlayer(ac, sample);		//Create a sampleplayer from the audio context and the sample as input
 		
 
-		masterGain = new Gain(ac, 1, 0.0f);
+		masterGain = new Gain(ac, 1, 0.0f);		//Create a gain object for the master gain of the audio context
 	
-		masterGain.addInput(sp);
-		ac.out.addInput(masterGain);
-		ac.out.setGain(0.08f);
-		masterGain.setGain(volumeSlider.getValue() );
-	    sp.setKillOnEnd(false);
+		masterGain.addInput(sp);				//Chain the sample player to the input of the master gain
+		ac.out.addInput(masterGain);			//Add the gain object as an input to the gain of the audio context
+		ac.out.setGain(0.08f);					//Set the initial gain of the audio context.
+		masterGain.setGain(volumeSlider.getValue() );		//set mastergain by getting the value from the slider
+	    sp.setKillOnEnd(false);					//Do not kill the sample after playback gets to end of the sample
 	    
-	    rms = new RMS(ac,2,1024);
-	    power = new Power();
-	    rms.addInput(ac.out);
-	    ac.out.addDependent(rms);
-	    
-		
-	
+	    rms = new RMS(ac,2,1024);				//Create an RootMeanSquare object, with the audio context, channels and memory size
+	    rms.addInput(ac.out);					//Add the audio context as an input to the rms object
+	    ac.out.addDependent(rms);				//Make the rms a dependant of the audio context gain
 	}
 	
-			
+	/**
+	 * The buildDropDown method builds the file selector drop down box and returns it.
+	 * @return  JComboBox The combo box of the audio files list
+	 */
 	public JComboBox<String> buildDropDown(){
 		String audioFiles[] ={"VeilofShadows.wav","GeneralGrevious.wav", 
 				"underminers-drumloop.wav","VeilofShadows-Outro.wav"};
@@ -232,42 +242,49 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//Whenever any button is clicked, get the selected audio file in the dropdown box.
 	    String	audioFile = files.getSelectedItem().toString();
+	    //Get an input stream of the audio sample
 	    InputStream sourceStream = finder.findInputStream("/audio/"+audioFile);
 
 		
 		Sample sample = null;
 		try {
-			sample = new Sample(sourceStream);
+			sample = new Sample(sourceStream);		//Create a sample from the audio file
 		} catch (IOException | UnsupportedAudioFileException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-	
-		if(files.hasFocus()){
+		
+		//If the files drop down box has focus, reset all of the audio playback and filters
+		if(files.hasFocus())
+		{
 			ac.stop();
 			sp.reset();
 			sp.setSample(sample);
 			EQPanel.resetFilters();
 		}
 	
-			
+		//Playbutton pressed
 		if(e.getSource().equals(playbutton))
 		{
+			//Make sure the audio context is not null and that the audio context is not currently running
 			if(ac != null && !ac.isRunning())
 			{
-				ac.start();
-				currVol = volumeSlider.getValue();
-				prevVol = currVol;
-				updateRMS();
+				ac.start();			//Start the audio context
+				currVol = volumeSlider.getValue();	//Store the current value of the volume slider
+				prevVol = currVol;		//Make the previous value of the volume slider the previous value
+				updateRMS();			//Start the updateRMS method
 			}	
-			System.out.println("Initial Gain" + masterGain.getGain());
+			
 		}
+		//If the stop button is pressed then stop audio playback
 		else if(e.getSource().equals(pausebutton))
 		{
 			ac.stop();
 			
 		}
+		//If the stop button is pressed, stop playback and reset the position to the beginning of the audio sample
 		else if(e.getSource().equals(stopbutton))
 		{
 			ac.stop();
@@ -276,44 +293,52 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		}
 	}
 	
-
-/**
- * This method needs some work, it works mostly, but needs to be fine tuned a bit
- * should change the volume of the music sample.
- */
-
+	/**
+	 * stateChanged listens for changes in the volume slider control and adjust the
+	 * gain of the audio context.
+	 */
 	@Override
 	public void stateChanged(ChangeEvent e)
 	{
 	
 		if(e.getSource().equals(volumeSlider))
 		{
+			//If the value of the slider is 0 then mute the audio
 			if(volumeSlider.getValue() == 0){
 				ac.out.setGain(0.0f);
 			}
+			//Otherwise set the gain to the value of the volumeSlider
 			else{
 				ac.out.setGain(0.08f);
 				masterGain.setGain(volumeSlider.getValue());	
 				
 			}
-					
-			System.out.println("Gain: " + ac.out.getGain());
-		
-	
-		}
+	}
 	
 	}
 
+	/**
+	 * The updateRMS method gets the RMS value of an audio signal
+	 * and constantly updates the progress bar in a thread running a 
+	 * while loop.
+	 * 
+	 */
 	public void updateRMS()
 	{
-		
+			//Construct a thread
 		 	Thread thread = new Thread(){
+		 	/**
+		 	 * The run method executes the RMS audio signal update
+		 	 * in a separate thread.
+		 	 */
 			public void run()
 			{
+				//Loop while the audio context is running
 				while(getAC().isRunning())
 				{
+					//Get the value of the rms and scale the float by 10000
 					float value = rms.getValue() * 10000;
-					//System.out.println((int)value);
+					//Update the volume progress bar with the rms value (synchronized access to it)
 					synchronized(this){
 						volume.setValue((int)value);
 					}
@@ -322,7 +347,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 				
 			}
 		};
-		thread.start();
+		thread.start();		//Start the thread to update the volume level.
 		
 	}
 	
@@ -345,6 +370,10 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	{
 		return sp;
 	}
+	/**
+	 * Getter for the mastergain object
+	 * @return A Gain object
+	 */
 	public static Gain getMainGain(){
 		return masterGain;
 	}
