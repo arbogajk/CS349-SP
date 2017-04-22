@@ -61,10 +61,18 @@ public class MasteringApp extends AbstractMultimediaApp
     	
     		try {
 				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-					| UnsupportedLookAndFeelException e) {
-				// TODO Auto-generated catch block
+			} catch (ClassNotFoundException e){
 				e.printStackTrace();
+			}
+			catch(InstantiationException e1){
+				e1.printStackTrace();
+			}
+			catch(IllegalAccessException e2){
+				e2.printStackTrace();
+			}
+			catch(UnsupportedLookAndFeelException e3) {
+				// TODO Auto-generated catch block
+				e3.printStackTrace();
 			}
    
     	

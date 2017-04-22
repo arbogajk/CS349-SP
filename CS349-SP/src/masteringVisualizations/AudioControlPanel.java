@@ -12,13 +12,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
 
-
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Control;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer.Info;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonModel;
@@ -40,6 +41,9 @@ import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.jaudiolibs.audioservers.javasound.JavasoundAudioServer;
+import org.jaudiolibs.beads.AudioServerIO;
 
 import visual.statik.sampled.ImageFactory;
 import io.ResourceFinder;
@@ -217,6 +221,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 
 			e.printStackTrace();
 		}
+		
+		
 		ac = new AudioContext();				//Construct an AudioContext object
 		sp = new SamplePlayer(ac, sample);		//Create a sampleplayer from the audio context and the sample as input
 		
@@ -239,8 +245,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	 * @return  JComboBox The combo box of the audio files list
 	 */
 	public JComboBox<String> buildDropDown(){
-		String audioFiles[] ={"VeilofShadows.wav","GeneralGrevious.wav", 
-				"underminers-drumloop.wav","VeilofShadows-Outro.wav"};
+		String audioFiles[] ={"veilofshadows.au","generalgrevious.au", 
+				"underminers-drumloop.au","veilofshadows-outro.au"};
 
 		JComboBox<String> fileSelect = new JComboBox<String>(audioFiles);
 		fileSelect.addActionListener(this);
@@ -263,9 +269,11 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		Sample sample = null;
 		try {
 			sample = new Sample(sourceStream);		//Create a sample from the audio file
-		} catch (IOException | UnsupportedAudioFileException e1) {
+		} catch (IOException e1){
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		}catch (UnsupportedAudioFileException e2) {
+			e2.printStackTrace();
 		}
 		
 		//If the files drop down box has focus, reset all of the audio playback and filters
