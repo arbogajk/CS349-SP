@@ -503,9 +503,9 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		else if(preset.equals("Metal")){
 			resetFilters();
 			s250.setValue(9);
-			s800.setValue(-6);
-			s25.setValue(0);
-			s8.setValue(9);
+			s800.setValue(-9);
+			s25.setValue(-3);
+			s8.setValue(6);
 		
 			lpfSpinner.setValue(16000);
 			lpfButton.doClick();

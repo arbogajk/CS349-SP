@@ -207,11 +207,11 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			sample = new Sample(sourceStream);		//Create a sample from the inputstream
 		
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
+	
 			System.out.println("could not find " + audioFile );
 			e1.printStackTrace();
 		} catch (UnsupportedAudioFileException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 		ac = new AudioContext();				//Construct an AudioContext object
@@ -222,7 +222,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	
 		masterGain.addInput(sp);				//Chain the sample player to the input of the master gain
 		ac.out.addInput(masterGain);			//Add the gain object as an input to the gain of the audio context
-		ac.out.setGain(0.08f);					//Set the initial gain of the audio context.
+		ac.out.setGain(0.06f);					//Set the initial gain of the audio context.
 		masterGain.setGain(volumeSlider.getValue() );		//set mastergain by getting the value from the slider
 	    sp.setKillOnEnd(false);					//Do not kill the sample after playback gets to end of the sample
 	    
@@ -297,6 +297,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			ac.stop();
 			sp.reset();
 			ac.reset();
+			volume.setValue(0);
 		}
 	}
 	
