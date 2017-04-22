@@ -1,6 +1,7 @@
 package masteringVisualizations;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -17,6 +18,7 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -123,6 +125,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 	
 	private void buildPresetBox(){
 		presetBox = new JComboBox<String>();
+		presetBox.setMaximumSize(new Dimension(100,20));
 		presetBox.addActionListener(this);
 		String [] presets = {"no preset", "Rock", "Metal", "Telephone", "Low End", "Brighten"};
 		for(int i = 0; i < presets.length; i++){
@@ -270,13 +273,17 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lpfSpinner = new JSpinner();
 		filterFreqLPF = new SpinnerNumberModel(5000,1200, 20000,100);
 		filterFreqHPF = new SpinnerNumberModel(100,50,1000,10);
+		
+		Dimension minSpinner = new Dimension(55,30);
+		lpfSpinner.setMaximumSize(minSpinner);
+		
 		lpfSpinner.setModel(filterFreqLPF);
-		lpfSpinner.setBounds((int)hertz1.getBounds().getMinX() - 80, 
-				hertz1.getY(),(int)(WIDTH * 0.15),30);
+		lpfSpinner.setBounds( (int)hertz1.getX() - 60, 
+				hertz1.getY(),(int)lpfSpinner.getMaximumSize().getWidth(),(int)lpfSpinner.getMaximumSize().getHeight());
 		
 		hpfSpinner.setModel(filterFreqHPF);
-		hpfSpinner.setBounds((int)hertz2.getBounds().getMinX() - 80,
-				hertz2.getY(),(int)(WIDTH *.15),30);
+		hpfSpinner.setBounds((int)hertz2.getBounds().getMinX() - 60,
+				hertz2.getY(),55,30);
 		
 		//Create toggle buttons for low and high pass, and low/high shelf
 		lpfButton = new JToggleButton("LPF");
@@ -284,10 +291,12 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lpfButton.addActionListener(this);
 		hpfButton.addActionListener(this);
 		
-		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX() - 45 ,
-				(int)lpfSpinner.getBounds().getY(),(int)(WIDTH *0.1),30);
-		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - 45,
-				(int)hpfSpinner.getBounds().getY(),(int)(WIDTH * 0.1),30);
+		lpfButton.setMaximumSize(new Dimension(60,30));
+		hpfButton.setMaximumSize(new Dimension(60,30));
+		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX() - 70 ,
+				(int)lpfSpinner.getBounds().getY(),(int)lpfButton.getMaximumSize().getWidth(),(int)lpfButton.getMaximumSize().getHeight());
+		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - 70,
+				(int)hpfSpinner.getBounds().getY(),(int)hpfButton.getMaximumSize().getWidth(),(int)hpfButton.getMaximumSize().getHeight());
 		lpfButton.setFont(labelsFont);
 		hpfButton.setFont(labelsFont);
 		lpfButton.setForeground(jmuPurple);
@@ -304,18 +313,22 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lowShelfButton.addActionListener(this);
 		highShelfButton.addActionListener(this);
 		
+		highShelfButton.setMaximumSize(new Dimension(80,30));
+		lowShelfButton.setMaximumSize(new Dimension(80,30));
+		highShelfButton.setHorizontalAlignment(SwingConstants.LEFT);
+		lowShelfButton.setHorizontalAlignment(SwingConstants.LEFT);
+		
+		
 		highShelfButton.setBounds((int)hpfButton.getBounds().getX(), 
-				(int)hpfButton.getBounds().getMaxY() + 10,(int)(WIDTH * 0.15),30);
+				(int)hpfButton.getBounds().getMaxY() + 10,(int)highShelfButton.getMaximumSize().getWidth(),(int)highShelfButton.getMaximumSize().getHeight());
 		
 		lowShelfButton.setBounds((int)hpfButton.getBounds().getX(), 
-				(int)highShelfButton.getBounds().getMaxY() + 2, (int)(WIDTH * 0.15),30);
+				(int)highShelfButton.getBounds().getMaxY() + 2, (int)lowShelfButton.getMaximumSize().getWidth(), (int)lowShelfButton.getMaximumSize().getHeight());
 		
 		presetBox.setBounds((int)lowShelfButton.getBounds().getX(), 
-				(int)lowShelfButton.getBounds().getY() + 40, (int)(WIDTH * 0.3),(int)(HEIGHT * 0.1));
+				(int)lowShelfButton.getBounds().getY() + 40, presetBox.getMaximumSize().width,presetBox.getMaximumSize().height);
 		
-		
-		
-		
+
 		//Add all of the components to the slider panel and then add the slider panel to EQpanel
 		sliderPanel.add(s250);
 		sliderPanel.add(f250);
