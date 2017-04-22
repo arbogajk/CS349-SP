@@ -9,6 +9,7 @@ import java.util.Hashtable;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -50,7 +51,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
 	private JSpinner lpfSpinner, hpfSpinner;
 	private JPanel sliderPanel, eqPanel;
-
+	private JComboBox<String> presetBox;
 	
 	/**These are static so the reset method can be called in the AudioControlPanel class */
 	//private static OnePoleFilter lpf,hpf;			//Low pass and high pass filters
@@ -102,20 +103,32 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		fontVolume = new Font("Times New Roman",Font.BOLD,(int)(WIDTH *0.04));
 		title = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.04));
 		labelsFont = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.02 + 2));
-		
-		//Build the panel with the EQ sliders		
+		this.ac = ac;
+		this.sp = sp;
+		//Build the panel with the EQ sliders
+		//Initialize all of the filters
+				
+		buildPresetBox();
 		buildEQSliders();
 		
 		//Set the audio context and sample player
-		this.ac = ac;
-		this.sp = sp;
+	
 		
-		//Initialize all of the filters
 		initFilters();
 		
 		//Add the EQ panel to the main panel
 		add(eqPanel);
 
+	}
+	
+	private void buildPresetBox(){
+		presetBox = new JComboBox<String>();
+		presetBox.addActionListener(this);
+		String [] presets = {"no preset", "Rock", "Metal", "Telephone", "Low End", "Brighten"};
+		for(int i = 0; i < presets.length; i++){
+			presetBox.addItem(presets[i]);
+		}
+		
 	}
 	
 	/**
@@ -129,7 +142,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		eqPanel.setBounds(0,0,WIDTH,HEIGHT);
 		eqPanel.setBorder(new LineBorder(jmuPurple,5));
 		
-		labelTable = new Hashtable<>();
+		labelTable = new Hashtable<Integer,JComponent>();
 		labelTable.put(new Integer(9), new JLabel("  +9 dB"));
 		labelTable.put(new Integer(6), new JLabel("  +6 dB"));
 		labelTable.put(new Integer(3), new JLabel("  +3 dB"));
@@ -156,6 +169,9 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		sliderPanel.setLayout(null);
 		sliderPanel.setBounds(20,20,WIDTH - 40, HEIGHT -40);
 		
+		
+		
+	
 		//Create labels for the EQ image, and the frequencies for the sliders
 		JLabel panelTitle = new JLabel(eqImg);
     	
@@ -294,6 +310,16 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lowShelfButton.setBounds((int)hpfButton.getBounds().getX(), 
 				(int)highShelfButton.getBounds().getMaxY() + 10, (int)(WIDTH * 0.15),30);
 		
+		presetBox.setBounds((int)lowShelfButton.getBounds().getX(), 
+				(int)lowShelfButton.getBounds().getY() + 40, (int)(WIDTH * 0.15),(int)(HEIGHT * 0.1));
+		
+		JLabel presetsLabel = new JLabel("Presets");
+		
+		presetsLabel.setForeground(jmuPurple);
+		presetsLabel.setBounds((int)sliderPanel.getBounds().getWidth() - 80,(int) presetBox.getBounds().getY(),
+				(int)(WIDTH *0.1),(int)(HEIGHT *0.1));
+	
+		
 		//Add all of the components to the slider panel and then add the slider panel to EQpanel
 		sliderPanel.add(s250);
 		sliderPanel.add(f250);
@@ -311,8 +337,9 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		sliderPanel.add(lowShelfButton);
 		sliderPanel.add(lpfSpinner);
 		sliderPanel.add(hpfSpinner);
-		
+		sliderPanel.add(presetBox);
 		eqPanel.add(panelTitle);
+		sliderPanel.add(presetsLabel);
 		eqPanel.add(sliderPanel);
 	}
 	
@@ -324,8 +351,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 	{
 		
 		/* Low Pass High pass*/
-//		lpf = new OnePoleFilter(ac,0.0f);
-//		hpf = new OnePoleFilter(ac,0.0f);
+
 		lpf = new BiquadFilter(ac,2,BiquadFilter.LP);
 		hpf = new BiquadFilter(ac,2,BiquadFilter.HP);
 
@@ -444,7 +470,73 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		hshelfGlide.setValue(0.0f);
 	}
 	
-	
+	public void changePresets(){
+		String preset = presetBox.getSelectedItem().toString();
+		
+		if(preset.equals("no preset"))
+		{
+			if(ac.isRunning()){
+			resetFilters();
+			}
+		}
+		else if(preset.equals("Rock")){
+			resetFilters();
+			s250.setValue(6);
+			s800.setValue(-6);
+			s25.setValue(6);
+			s8.setValue(6);
+			
+			lpfSpinner.setValue(13000);
+			lpfButton.doClick();
+			lowShelfButton.doClick();
+			
+		}
+		else if(preset.equals("Metal")){
+			resetFilters();
+			s250.setValue(9);
+			s800.setValue(-6);
+			s25.setValue(0);
+			s8.setValue(9);
+		
+			lpfSpinner.setValue(16000);
+			lpfButton.doClick();
+			lowShelfButton.doClick();
+		}
+		else if(preset.equals("Telephone")){
+			resetFilters();
+			s250.setValue(-9);
+			s800.setValue(9);
+			s25.setValue(-6);
+			s8.setValue(-9);
+			
+			lpfSpinner.setValue(2000);
+			lpfButton.doClick();
+			hpfSpinner.setValue(1000);
+			hpfButton.doClick();
+		}
+		else if(preset.equals("Low End")){
+			resetFilters();
+			s250.setValue(9);
+			s800.setValue(-6);
+			s25.setValue(-6);
+			s8.setValue(-9);
+			lowShelfButton.doClick();
+			lpfSpinner.setValue(5000);
+			lpfButton.doClick();
+		}
+		else{
+			resetFilters();
+			s250.setValue(-6);
+			s800.setValue(-6);
+			s25.setValue(3);
+			s8.setValue(9);
+			hpfSpinner.setValue(300);
+			hpfButton.doClick();
+			highShelfButton.doClick();
+		}
+			
+		
+	}
 	/*
 	 *	This method signals EQ filters to change when a change in the slider is detected 
 	 */
@@ -545,6 +637,9 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 				hshelfGlide.setValue(0.0f);
 				hShelfOn = 0;
 			}
+		}
+		else if(e.getSource().equals(presetBox)){
+			changePresets();
 		}
 	}
 }
