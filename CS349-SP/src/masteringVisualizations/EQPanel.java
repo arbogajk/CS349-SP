@@ -502,7 +502,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		}
 		else if(preset.equals("Metal")){
 			resetFilters();
-			s250.setValue(9);
+			s250.setValue(6);
 			s800.setValue(-9);
 			s25.setValue(-3);
 			s8.setValue(6);
@@ -510,6 +510,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 			lpfSpinner.setValue(16000);
 			lpfButton.doClick();
 			lowShelfButton.doClick();
+			highShelfButton.doClick();
 		}
 		else if(preset.equals("Telephone")){
 			resetFilters();
@@ -556,19 +557,19 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 			if(e.getSource().equals(s250))
 			{
 				peakFilter250.setGain(s250.getValue());
-				gain250.setGain(s250.getValue() * 0.5f);
+				gain250.setGain(s250.getValue() * 0.3f);
 			}
 			else if(e.getSource().equals(s800)){
 				peakFilter800.setGain(s800.getValue());
-				gain800.setGain(s800.getValue() * 0.5f);
+				gain800.setGain(s800.getValue() * 0.3f);
 			}
 			else if(e.getSource().equals(s25)){
 				peakFilter25.setGain(s25.getValue() );
-				gain25.setGain(s25.getValue() * 0.5f);
+				gain25.setGain(s25.getValue() * 0.3f);
 			}
 			else if(e.getSource().equals(s8)){
 				peakFilter8.setGain(s8.getValue());
-				gain8.setGain(s8.getValue() * 0.5f);
+				gain8.setGain(s8.getValue() * 0.3f);
 			}
 
 	}
@@ -587,8 +588,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 				lpf.setFrequency(frequency);
 				//Increase the gain of the filter
 			
-				lpf.setGain(3.0f);
-				lpfGlide.setValue(5.0f);
+				lpfGlide.setValue(2.0f);
 				
 				//Set toggle on to 1
 				lpfOn = 1;
@@ -610,8 +610,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 			
 				float frequency = filterFreqHPF.getNumber().floatValue();
 				hpf.setFrequency(frequency);
-				hpf.setGain(3.0f);
-				hpfGlide.setValue(5.0f);
+			
+				hpfGlide.setValue(2.0f);
 				hpfOn = 1;
 			}
 			else

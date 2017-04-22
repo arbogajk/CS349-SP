@@ -36,6 +36,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -127,11 +128,13 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	Icon stop = new ImageIcon(stopIcon.getScaledInstance((int)(WIDTH * 0.085), (int)(WIDTH * 0.085), 0));
     	
     	//Construct the RMS level meter (JProgressBar)
-    	volume = new JProgressBar(JProgressBar.VERTICAL,0,2000);
+    	volume = new JProgressBar(JProgressBar.VERTICAL,0,3000);
     	volume.setValue(0);
     	volume.setBounds((int)(this.getBounds().getMaxX() - (int)WIDTH*0.1) - 10, 5, (int)(WIDTH * 0.1),
     			(int)this.getBounds().getHeight() - 25);
-    	
+    	volume.setStringPainted(true);
+    	volume.setForeground(jmuGold);
+    	volume.setString("");
     	//Create a slider for the volume control
     	volumeSlider = new JSlider(JSlider.VERTICAL,0,10,5);
     	volumeSlider.addChangeListener(this);
@@ -349,6 +352,14 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 					//Update the volume progress bar with the rms value (synchronized access to it)
 					synchronized(this){
 						volume.setValue((int)value);
+						
+					}
+					System.out.println((int)value);
+					if((int)value >= 3200){
+						volume.setForeground(Color.RED);
+					}
+					else{
+						volume.setForeground(jmuGold);
 					}
 					
 				}
