@@ -193,9 +193,9 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
     	hertz2.setForeground(jmuPurple);
     	
     	hertz1.setBounds((int)sliderPanel.getBounds().getWidth()  - 20, 
-				60,(int)(WIDTH * 0.15),30);
+				30,(int)(WIDTH * 0.15),30);
     	hertz2.setBounds((int)sliderPanel.getBounds().getWidth()  - 20, 
-				hertz1.getY() + 50,(int)(WIDTH * 0.15),30);
+				hertz1.getY() + 30,(int)(WIDTH * 0.15),30);
     	
     	
     	
@@ -208,11 +208,11 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		s250.setSnapToTicks(true);
 		s250.setLabelTable(labelTable);
 		s250.addChangeListener(this);
-		s250.setBounds(5,(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.12),
+		s250.setBounds(1,(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.15),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		s250.setBorder(new LineBorder(jmuGold,1,true));
 		f250.setBounds(((int)s250.getBounds().getCenterX()- f250.getWidth()/2) - 15, 
-				(int)sliderPanel.getHeight() - 25,(int)(WIDTH * 0.08),20);
+				(int)sliderPanel.getHeight() - 16,(int)(WIDTH * 0.08),20);
 		f250.setFont(labelsFont);
 		
 		s800 = new JSlider(JSlider.VERTICAL,-9,9,0);
@@ -222,12 +222,12 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		s800.setSnapToTicks(true);
 		s800.addChangeListener(this);
 		s800.setForeground(jmuPurple);
-		s800.setBounds((int)s250.getBounds().getMaxX() + 10,(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.12),
+		s800.setBounds((int)s250.getBounds().getMaxX() + 1,(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.15),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		s800.setLabelTable(labelTable);
 		s800.setBorder(new LineBorder(jmuGold,1,true));
 		f800.setBounds(((int)s800.getBounds().getCenterX() - f800.getWidth()/2) - 15,
-				(int)sliderPanel.getHeight() - 25,(int)(WIDTH * 0.08),20);
+				(int)sliderPanel.getHeight() - 16,(int)(WIDTH * 0.08),20);
 		f800.setFont(labelsFont);
 		s25= new JSlider(JSlider.VERTICAL,-9,9,0);
 		s25.setMajorTickSpacing(3);
@@ -236,13 +236,13 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		s25.setSnapToTicks(true);
 		s25.addChangeListener(this);
 		s25.setForeground(jmuPurple);
-		s25.setBounds((int)s800.getBounds().getMaxX() + 10,
-				(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.12),
+		s25.setBounds((int)s800.getBounds().getMaxX() + 1,
+				(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.15),
 		(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		s25.setLabelTable(labelTable);
 		s25.setBorder(new LineBorder(jmuGold,1,true));
 		f25.setBounds(((int)s25.getBounds().getCenterX() - f25.getWidth()/2) - 15,
-				(int)sliderPanel.getHeight() - 25,(int)(WIDTH * 0.08),20);
+				(int)sliderPanel.getHeight() - 16,(int)(WIDTH * 0.08),20);
 		f25.setFont(labelsFont);
 		s8= new JSlider(JSlider.VERTICAL,-9,9,0);
 		s8.setMajorTickSpacing(3);
@@ -251,14 +251,14 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		s8.setSnapToTicks(true);
 		s8.addChangeListener(this);
 		s8.setForeground(jmuPurple);
-		s8.setBounds((int)s25.getBounds().getMaxX() +10,
-				(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.12),
+		s8.setBounds((int)s25.getBounds().getMaxX() +1,
+				(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.15),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
 		s8.setLabelTable(labelTable);
 		s8.setBorder(new LineBorder(jmuGold,1,true));
 		
 		f8.setBounds(((int)s8.getBounds().getCenterX() - f8.getWidth()/2) - 15,
-				(int)sliderPanel.getHeight() - 25,(int)(WIDTH * 0.08),20);
+				(int)sliderPanel.getHeight() - 16,(int)(WIDTH * 0.08),20);
 		f8.setFont(labelsFont);
 		
 		
@@ -271,11 +271,11 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		filterFreqLPF = new SpinnerNumberModel(5000,1200, 20000,100);
 		filterFreqHPF = new SpinnerNumberModel(100,50,1000,10);
 		lpfSpinner.setModel(filterFreqLPF);
-		lpfSpinner.setBounds((int)hertz1.getBounds().getMinX() - 100, 
+		lpfSpinner.setBounds((int)hertz1.getBounds().getMinX() - 80, 
 				hertz1.getY(),(int)(WIDTH * 0.15),30);
 		
 		hpfSpinner.setModel(filterFreqHPF);
-		hpfSpinner.setBounds((int)hertz2.getBounds().getMinX() - 100,
+		hpfSpinner.setBounds((int)hertz2.getBounds().getMinX() - 80,
 				hertz2.getY(),(int)(WIDTH *.15),30);
 		
 		//Create toggle buttons for low and high pass, and low/high shelf
@@ -284,9 +284,9 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lpfButton.addActionListener(this);
 		hpfButton.addActionListener(this);
 		
-		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX()-(int)(WIDTH * 0.1) - 5 ,
+		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX() - 45 ,
 				(int)lpfSpinner.getBounds().getY(),(int)(WIDTH *0.1),30);
-		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - (int)(WIDTH * 0.1) - 5,
+		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - 45,
 				(int)hpfSpinner.getBounds().getY(),(int)(WIDTH * 0.1),30);
 		lpfButton.setFont(labelsFont);
 		hpfButton.setFont(labelsFont);
@@ -308,17 +308,13 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 				(int)hpfButton.getBounds().getMaxY() + 10,(int)(WIDTH * 0.15),30);
 		
 		lowShelfButton.setBounds((int)hpfButton.getBounds().getX(), 
-				(int)highShelfButton.getBounds().getMaxY() + 10, (int)(WIDTH * 0.15),30);
+				(int)highShelfButton.getBounds().getMaxY() + 2, (int)(WIDTH * 0.15),30);
 		
 		presetBox.setBounds((int)lowShelfButton.getBounds().getX(), 
-				(int)lowShelfButton.getBounds().getY() + 40, (int)(WIDTH * 0.15),(int)(HEIGHT * 0.1));
+				(int)lowShelfButton.getBounds().getY() + 40, (int)(WIDTH * 0.3),(int)(HEIGHT * 0.1));
 		
-		JLabel presetsLabel = new JLabel("Presets");
 		
-		presetsLabel.setForeground(jmuPurple);
-		presetsLabel.setBounds((int)sliderPanel.getBounds().getWidth() - 80,(int) presetBox.getBounds().getY(),
-				(int)(WIDTH *0.1),(int)(HEIGHT *0.1));
-	
+		
 		
 		//Add all of the components to the slider panel and then add the slider panel to EQpanel
 		sliderPanel.add(s250);
@@ -339,7 +335,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		sliderPanel.add(hpfSpinner);
 		sliderPanel.add(presetBox);
 		eqPanel.add(panelTitle);
-		sliderPanel.add(presetsLabel);
+	
 		eqPanel.add(sliderPanel);
 	}
 	
