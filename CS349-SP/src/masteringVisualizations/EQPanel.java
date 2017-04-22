@@ -209,8 +209,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		//Create spinners for the Low pass and High pass frequency cuttoffs
 		hpfSpinner = new JSpinner();
 		lpfSpinner = new JSpinner();
-		filterFreqLPF = new SpinnerNumberModel(100,20, 1000,10);
-		filterFreqHPF = new SpinnerNumberModel(16000,1000,20000,100);
+		filterFreqLPF = new SpinnerNumberModel(5000,1200, 20000,100);
+		filterFreqHPF = new SpinnerNumberModel(100,50,1000,10);
 		lpfSpinner.setModel(filterFreqLPF);
 		lpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - (int)(WIDTH *.15) - 30, 
 				40,(int)(WIDTH * 0.15),30);
@@ -291,7 +291,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lowShelf = new BiquadFilter(ac,2,BiquadFilter.LOW_SHELF);
 		lowShelf.setFrequency(60.0f).setQ(2).setGain(5.0f);
 		highShelf = new BiquadFilter(ac, 2, BiquadFilter.HIGH_SHELF);
-		highShelf.setFrequency(10000.0f).setQ(2).setGain(3.0f);
+		highShelf.setFrequency(8000.0f).setQ(2).setGain(3.0f);
 		
 		
 		//add the sample player as an input to the filters
@@ -380,16 +380,16 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 	 */
 	public static void resetFilters()
 	{
-		lpf.setFrequency(0.0f);
-		hpf.setFrequency(0.0f);
-		lpf.setValue(0.0f);
-		hpf.setValue(0.0f);
-		lpfGain.setValue(0.0f);
-		hpfGain.setValue(0.0f);
+
+	
+		lpfGlide.setValue(0.0f);
+		hpfGlide.setValue(0.0f);
 		lpfOn = 0;
 		hpfOn = 0;
 		lpfButton.setSelected(false);
 		hpfButton.setSelected(false);
+		lowShelfButton.setSelected(false);
+		highShelfButton.setSelected(false);
 		s250.setValue(0);
 		s800.setValue(0);
 		s25.setValue(0);
@@ -398,6 +398,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		gain800.setGain(0.0f);
 		gain25.setGain(0.0f);
 		gain8.setGain(0.0f);
+		lshelfGlide.setValue(0.0f);
+		hshelfGlide.setValue(0.0f);
 	}
 	
 	
@@ -441,7 +443,10 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 				//Set the low pass filter frequency to the value from the spinner
 				lpf.setFrequency(frequency);
 				//Increase the gain of the filter
+			
+				lpf.setGain(3.0f);
 				lpfGlide.setValue(5.0f);
+				
 				//Set toggle on to 1
 				lpfOn = 1;
 			}
@@ -459,9 +464,10 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		{
 			if(hpfOn == 0)
 			{
-				System.out.println("armed");
+			
 				float frequency = filterFreqHPF.getNumber().floatValue();
 				hpf.setFrequency(frequency);
+				hpf.setGain(3.0f);
 				hpfGlide.setValue(5.0f);
 				hpfOn = 1;
 			}
