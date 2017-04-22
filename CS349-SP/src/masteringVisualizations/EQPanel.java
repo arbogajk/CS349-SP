@@ -5,9 +5,11 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Hashtable;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -41,6 +43,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 	private Font fontVolume;
 	private Font title;
 	private Font labelsFont;
+	
+	private Hashtable<Integer, JComponent> labelTable;
 	
 	//Jcomponents for the controls of the EQ panel
 	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
@@ -125,6 +129,21 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		eqPanel.setBounds(0,0,WIDTH,HEIGHT);
 		eqPanel.setBorder(new LineBorder(jmuPurple,5));
 		
+		labelTable = new Hashtable<>();
+		labelTable.put(new Integer(9), new JLabel("  +9 dB"));
+		labelTable.put(new Integer(6), new JLabel("  +6 dB"));
+		labelTable.put(new Integer(3), new JLabel("  +3 dB"));
+		labelTable.put(new Integer(0), new JLabel("   0 dB"));
+		labelTable.put(new Integer(-3), new JLabel("  -3 dB"));
+		labelTable.put(new Integer(-6), new JLabel("  -6 dB"));
+		labelTable.put(new Integer(-9), new JLabel("  -9 dB"));
+		
+		for(int i =-9; i < 10;){
+			labelTable.get(i).setFont(labelsFont);
+			labelTable.get(i).setForeground(jmuPurple);
+			i += 3;
+		}
+		
 		//Load in the EQ image
 		finder = ResourceFinder.createInstance(this);
     	ImageFactory imgFactory = new ImageFactory(finder);
@@ -140,7 +159,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		//Create labels for the EQ image, and the frequencies for the sliders
 		JLabel panelTitle = new JLabel(eqImg);
     	
-    	JLabel f250,f800,f25,f8;
+    	JLabel f250,f800,f25,f8, hertz1,hertz2;
     	
     	f250 = new JLabel("250 Hz");
     	f250.setForeground(jmuPurple);
@@ -150,18 +169,34 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
     	f25.setForeground(jmuPurple);
     	f8 = new JLabel("8 kHz");
     	f8.setForeground(jmuPurple);
+    	hertz1 = new JLabel("Hz");
+    	hertz2 = new JLabel("Hz");
+    	hertz1.setFont(labelsFont);
+    	hertz2.setFont(labelsFont);
+    	hertz1.setForeground(jmuPurple);
+    	hertz2.setForeground(jmuPurple);
+    	
+    	hertz1.setBounds((int)sliderPanel.getBounds().getWidth()  - 20, 
+				60,(int)(WIDTH * 0.15),30);
+    	hertz2.setBounds((int)sliderPanel.getBounds().getWidth()  - 20, 
+				hertz1.getY() + 50,(int)(WIDTH * 0.15),30);
+    	
+    	
     	
     	//Create all of the sliders for the EQ control
 		s250 = new JSlider(JSlider.VERTICAL,-9,9,0);
+	
 		s250.setMajorTickSpacing(3);
 		s250.setPaintLabels(true);
 		s250.setPaintTicks(true);
 		s250.setSnapToTicks(true);
+		s250.setLabelTable(labelTable);
 		s250.addChangeListener(this);
-		s250.setBounds(5,(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
+		s250.setBounds(5,(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.12),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
-		s250.setForeground(jmuPurple);
-		f250.setBounds((int)s250.getBounds().getMinX() + 6,(int)s250.getBounds().getMaxY() +3,(int)(WIDTH * 0.08),20);
+		s250.setBorder(new LineBorder(jmuGold,1,true));
+		f250.setBounds(((int)s250.getBounds().getCenterX()- f250.getWidth()/2) - 15, 
+				(int)sliderPanel.getHeight() - 25,(int)(WIDTH * 0.08),20);
 		f250.setFont(labelsFont);
 		
 		s800 = new JSlider(JSlider.VERTICAL,-9,9,0);
@@ -171,9 +206,12 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		s800.setSnapToTicks(true);
 		s800.addChangeListener(this);
 		s800.setForeground(jmuPurple);
-		s800.setBounds((int)s250.getBounds().getMaxX() + 20,(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
+		s800.setBounds((int)s250.getBounds().getMaxX() + 10,(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.12),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
-		f800.setBounds((int)s800.getBounds().getMinX() + 6,(int)s800.getBounds().getMaxY() + 3,(int)(WIDTH * 0.08),20);
+		s800.setLabelTable(labelTable);
+		s800.setBorder(new LineBorder(jmuGold,1,true));
+		f800.setBounds(((int)s800.getBounds().getCenterX() - f800.getWidth()/2) - 15,
+				(int)sliderPanel.getHeight() - 25,(int)(WIDTH * 0.08),20);
 		f800.setFont(labelsFont);
 		s25= new JSlider(JSlider.VERTICAL,-9,9,0);
 		s25.setMajorTickSpacing(3);
@@ -182,11 +220,13 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		s25.setSnapToTicks(true);
 		s25.addChangeListener(this);
 		s25.setForeground(jmuPurple);
-		s25.setBounds((int)s800.getBounds().getMaxX() + 20,
-				(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
+		s25.setBounds((int)s800.getBounds().getMaxX() + 10,
+				(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.12),
 		(int)(sliderPanel.getBounds().getMaxY()/1.5));
-		f25.setBounds((int)s25.getBounds().getMinX() + 6,
-				(int)s25.getBounds().getMaxY() + 3,(int)(WIDTH * 0.08),20);
+		s25.setLabelTable(labelTable);
+		s25.setBorder(new LineBorder(jmuGold,1,true));
+		f25.setBounds(((int)s25.getBounds().getCenterX() - f25.getWidth()/2) - 15,
+				(int)sliderPanel.getHeight() - 25,(int)(WIDTH * 0.08),20);
 		f25.setFont(labelsFont);
 		s8= new JSlider(JSlider.VERTICAL,-9,9,0);
 		s8.setMajorTickSpacing(3);
@@ -195,16 +235,19 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		s8.setSnapToTicks(true);
 		s8.addChangeListener(this);
 		s8.setForeground(jmuPurple);
-		s8.setBounds((int)s25.getBounds().getMaxX() +20,
-				(int)sliderPanel.getBounds().getMinY() + 15,(int)(WIDTH *0.08),
+		s8.setBounds((int)s25.getBounds().getMaxX() +10,
+				(int)sliderPanel.getBounds().getMinY() + 25,(int)(WIDTH *0.12),
 				(int)(sliderPanel.getBounds().getMaxY()/1.5));
-		f8.setBounds((int)s8.getBounds().getMinX() + 6,
-				(int)s8.getBounds().getMaxY() + 3,(int)(WIDTH * 0.08),20);
+		s8.setLabelTable(labelTable);
+		s8.setBorder(new LineBorder(jmuGold,1,true));
+		
+		f8.setBounds(((int)s8.getBounds().getCenterX() - f8.getWidth()/2) - 15,
+				(int)sliderPanel.getHeight() - 25,(int)(WIDTH * 0.08),20);
 		f8.setFont(labelsFont);
 		
 		
-		panelTitle.setBounds((int)f8.getBounds().getX(), (int)sliderPanel.getBounds().getMinY(),
-				(int)(WIDTH * 0.15),(int)(HEIGHT * 0.15));
+		panelTitle.setBounds(((int)sliderPanel.getWidth()/2 - panelTitle.
+				getWidth()/2) - 20, 15, (int)(WIDTH *(.15)), (int)(HEIGHT * (0.15)));
 		
 		//Create spinners for the Low pass and High pass frequency cuttoffs
 		hpfSpinner = new JSpinner();
@@ -212,12 +255,12 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		filterFreqLPF = new SpinnerNumberModel(5000,1200, 20000,100);
 		filterFreqHPF = new SpinnerNumberModel(100,50,1000,10);
 		lpfSpinner.setModel(filterFreqLPF);
-		lpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - (int)(WIDTH *.15) - 30, 
-				40,(int)(WIDTH * 0.15),30);
+		lpfSpinner.setBounds((int)hertz1.getBounds().getMinX() - 100, 
+				hertz1.getY(),(int)(WIDTH * 0.15),30);
 		
 		hpfSpinner.setModel(filterFreqHPF);
-		hpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - (int)(WIDTH *.15) - 30,
-				(int)lpfSpinner.getBounds().getMaxY() + 20,(int)(WIDTH *.15),30);
+		hpfSpinner.setBounds((int)hertz2.getBounds().getMinX() - 100,
+				hertz2.getY(),(int)(WIDTH *.15),30);
 		
 		//Create toggle buttons for low and high pass, and low/high shelf
 		lpfButton = new JToggleButton("LPF");
@@ -235,8 +278,6 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lpfButton.setBackground(jmuGold);
 		hpfButton.setForeground(jmuPurple);
 		hpfButton.setBackground(jmuGold);
-		
-		
 		
 		highShelfButton = new JToggleButton("H-Shelf");
 		highShelfButton.setForeground(jmuPurple);
@@ -262,12 +303,15 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		sliderPanel.add(f25);
 		sliderPanel.add(s8);
 		sliderPanel.add(f8);
+		sliderPanel.add(hertz1);
+		sliderPanel.add(hertz2);
 		sliderPanel.add(lpfButton);
 		sliderPanel.add(hpfButton);
 		sliderPanel.add(highShelfButton);
 		sliderPanel.add(lowShelfButton);
 		sliderPanel.add(lpfSpinner);
 		sliderPanel.add(hpfSpinner);
+		
 		eqPanel.add(panelTitle);
 		eqPanel.add(sliderPanel);
 	}
@@ -302,15 +346,15 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		
 		//Create Glide objects and Gains for the filters.  Glides make the transition to a gain value
 		//smoother over time, this eliminates pops when you click the button.
-		lpfGlide = new Glide(ac, 0.1f, 20);
-		hpfGlide = new Glide(ac, 0.1f, 20);
+		lpfGlide = new Glide(ac, 0.1f, 50);
+		hpfGlide = new Glide(ac, 0.1f, 50);
 		lpfGain = new Gain(ac, 2, lpfGlide);
 		hpfGain = new Gain(ac, 2, hpfGlide);
 		lpfGain.addInput(lpf);
 		hpfGain.addInput(hpf);
 		
-		hshelfGlide = new Glide(ac,0.1f,20);
-		lshelfGlide = new Glide(ac,0.1f,20);
+		hshelfGlide = new Glide(ac,0.1f,50);
+		lshelfGlide = new Glide(ac,0.1f,50);
 		lowShelfGain = new Gain(ac, 2, lshelfGlide);
 		highShelfGain = new Gain(ac, 2, hshelfGlide);
 		
@@ -380,8 +424,6 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 	 */
 	public static void resetFilters()
 	{
-
-	
 		lpfGlide.setValue(0.0f);
 		hpfGlide.setValue(0.0f);
 		lpfOn = 0;

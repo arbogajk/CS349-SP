@@ -166,10 +166,17 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	
     	//Create a label for the volume control
     	JLabel volumeLabel = new JLabel("Volume",SwingConstants.CENTER);
+    	JLabel rmsLabel = new JLabel("RMS",SwingConstants.CENTER);
     	volumeLabel.setFont(font);
     	volumeLabel.setForeground(jmuGold);
-    	volumeLabel.setBounds((int)volumeSlider.getBounds().getMaxX() - 80,
-    			(int)volumeSlider.getBounds().getMaxY() ,(int)(WIDTH * 0.1),20);
+    	volumeLabel.setBounds((int)(volumeSlider.getBounds().getCenterX() - volumeLabel.getWidth()/2) - 25,
+    			volumeSlider.getHeight() + 3 ,(int)(WIDTH * 0.1),20);
+    	
+    	rmsLabel.setFont(font);
+    	rmsLabel.setForeground(jmuGold);
+    	rmsLabel.setBounds((int)(volume.getBounds().getCenterX() - volume.getWidth()/2), 
+    			volume.getHeight() + 3,(int)(WIDTH * 0.1), 20);
+    	
     	
     	//Initialize the sample player
     	samplePlayerInit();
@@ -177,6 +184,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	//Add all the components to the JPanel
     	add(volumeSlider);
     	add(volumeLabel);
+    	add(rmsLabel);
     	add(files);
     	add(volume);
     	add(playbutton);
