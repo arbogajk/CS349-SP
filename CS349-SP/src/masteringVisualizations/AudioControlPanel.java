@@ -354,8 +354,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 						volume.setValue((int)value);
 						
 					}
-					System.out.println((int)value);
-					if((int)value >= 3200){
+					
+					if((int)value >= 3000){
 						volume.setForeground(Color.RED);
 					}
 					else{
