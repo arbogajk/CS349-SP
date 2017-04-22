@@ -34,39 +34,54 @@ import visual.statik.sampled.ImageFactory;
 public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 	
 	private ResourceFinder finder;
-	
+	//Color and fonts for the panel
 	private Color jmuPurple = new Color(69,0,132);
 	private Color jmuGold = new Color(203,182,119);
 	private Font font;
 	private Font fontVolume;
 	private Font title;
 	private Font labelsFont;
+	
+	//Jcomponents for the controls of the EQ panel
 	private SpinnerNumberModel filterFreqLPF, filterFreqHPF;
 	private JSpinner lpfSpinner, hpfSpinner;
 	private JPanel sliderPanel, eqPanel;
-	private BiquadFilter peakFilter250, peakFilter800, peakFilter25, peakFilter8;
+
 	
 	/**These are static so the reset method can be called in the AudioControlPanel class */
-	private static OnePoleFilter lpf,hpf;
-	private static Gain mainGain = AudioControlPanel.getMainGain();
-	private static JSlider s250,s800,s25,s8;
-	private static JToggleButton lpfButton, hpfButton,highShelfButton, lowShelfButton;
-	private static int lpfOn =0;
+	//private static OnePoleFilter lpf,hpf;			//Low pass and high pass filters
+
+	private static Gain mainGain = AudioControlPanel.getMainGain();		//MasterGain object from the audio context
+	private static JSlider s250,s800,s25,s8;		//Sliders for each EQ frequency
+	private static JToggleButton lpfButton, hpfButton,highShelfButton, lowShelfButton;		//Toggle buttons for the filters
+	//Used to tell which state the toggle buttons are in
+	private static int lpfOn =0;					
 	private static int hpfOn =0;
 	private static int hShelfOn = 0;
 	private static int lShelfOn = 0;
+	
+	//Gain objects, Glide objects and BiquadFilters for high and low shelfs
 	private static Gain lpfGain, hpfGain, gain250, gain800, gain25, gain8, highShelfGain, lowShelfGain;	
 	private static Glide lpfGlide, hpfGlide, hshelfGlide, lshelfGlide;
-	private static BiquadFilter lowShelf, highShelf;
+	private static BiquadFilter lowShelf, highShelf, lpf,hpf;
 		
+	private BiquadFilter peakFilter250, peakFilter800, peakFilter25, peakFilter8;		//The actual peak filters for the eq
 
 
-	public AudioContext ac;
-	public SamplePlayer sp;
+	public AudioContext ac;			//Audio context retreived from the Audio control panel
+	public SamplePlayer sp;			//The sample player from the Audio control panel
 	
-	private final int WIDTH;
-	private final int HEIGHT;
+	private final int WIDTH;		//Width for the JPanel
+	private final int HEIGHT;		//Height for the JPanel
 	
+	
+	/**
+	 * This constructor builds the EQ Panel
+	 * @param ac		//An audio context
+	 * @param sp		//A sample player
+	 * @param width		//The width for the JPanel	
+	 * @param height	//The height for the JPanel
+	 */
 	public EQPanel(AudioContext ac, SamplePlayer sp, 
 								 int width, int height)
 	{
@@ -84,20 +99,24 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		title = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.04));
 		labelsFont = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.02 + 2));
 		
-		
-		
+		//Build the panel with the EQ sliders		
 		buildEQSliders();
 		
+		//Set the audio context and sample player
 		this.ac = ac;
-	
 		this.sp = sp;
 		
+		//Initialize all of the filters
 		initFilters();
-				
+		
+		//Add the EQ panel to the main panel
 		add(eqPanel);
 
 	}
 	
+	/**
+	 * The buildEQSliders method builds the panel with the EQ controls
+	 */
 	public void buildEQSliders()
 	{
 		eqPanel = new JPanel();
@@ -106,16 +125,19 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		eqPanel.setBounds(0,0,WIDTH,HEIGHT);
 		eqPanel.setBorder(new LineBorder(jmuPurple,5));
 		
+		//Load in the EQ image
 		finder = ResourceFinder.createInstance(this);
     	ImageFactory imgFactory = new ImageFactory(finder);
     	Image eqIcon= imgFactory.createBufferedImage("/img/eqText.png", 2);
-    	
+    	//Scale the Icon based on the Width and Height of the Panel
     	Icon eqImg = new ImageIcon(eqIcon.getScaledInstance((int)(WIDTH *0.15),(int)(HEIGHT * 0.15), 0));
 		
+    	//Create another panel for the slider controls
 		sliderPanel = new JPanel();
 		sliderPanel.setLayout(null);
 		sliderPanel.setBounds(20,20,WIDTH - 40, HEIGHT -40);
-   
+		
+		//Create labels for the EQ image, and the frequencies for the sliders
 		JLabel panelTitle = new JLabel(eqImg);
     	
     	JLabel f250,f800,f25,f8;
@@ -129,6 +151,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
     	f8 = new JLabel("8 kHz");
     	f8.setForeground(jmuPurple);
     	
+    	//Create all of the sliders for the EQ control
 		s250 = new JSlider(JSlider.VERTICAL,-9,9,0);
 		s250.setMajorTickSpacing(3);
 		s250.setPaintLabels(true);
@@ -180,13 +203,14 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		f8.setFont(labelsFont);
 		
 		
-		panelTitle.setBounds((int)f8.getBounds().getX(), (int)sliderPanel.getBounds().getMinY(),(int)(WIDTH * 0.15),(int)(HEIGHT * 0.15));
+		panelTitle.setBounds((int)f8.getBounds().getX(), (int)sliderPanel.getBounds().getMinY(),
+				(int)(WIDTH * 0.15),(int)(HEIGHT * 0.15));
 		
+		//Create spinners for the Low pass and High pass frequency cuttoffs
 		hpfSpinner = new JSpinner();
 		lpfSpinner = new JSpinner();
 		filterFreqLPF = new SpinnerNumberModel(100,20, 1000,10);
 		filterFreqHPF = new SpinnerNumberModel(16000,1000,20000,100);
-	
 		lpfSpinner.setModel(filterFreqLPF);
 		lpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - (int)(WIDTH *.15) - 30, 
 				40,(int)(WIDTH * 0.15),30);
@@ -195,6 +219,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		hpfSpinner.setBounds((int)sliderPanel.getBounds().getMaxX() - (int)(WIDTH *.15) - 30,
 				(int)lpfSpinner.getBounds().getMaxY() + 20,(int)(WIDTH *.15),30);
 		
+		//Create toggle buttons for low and high pass, and low/high shelf
 		lpfButton = new JToggleButton("LPF");
 		hpfButton = new JToggleButton("HPF");
 		lpfButton.addActionListener(this);
@@ -219,7 +244,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lowShelfButton = new JToggleButton("L-Shelf");
 		lowShelfButton.setForeground(jmuPurple);
 		lowShelfButton.setFont(labelsFont);
-		
+		lowShelfButton.addActionListener(this);
+		highShelfButton.addActionListener(this);
 		
 		highShelfButton.setBounds((int)hpfButton.getBounds().getX(), 
 				(int)hpfButton.getBounds().getMaxY() + 10,(int)(WIDTH * 0.15),30);
@@ -227,7 +253,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lowShelfButton.setBounds((int)hpfButton.getBounds().getX(), 
 				(int)highShelfButton.getBounds().getMaxY() + 10, (int)(WIDTH * 0.15),30);
 		
-		
+		//Add all of the components to the slider panel and then add the slider panel to EQpanel
 		sliderPanel.add(s250);
 		sliderPanel.add(f250);
 		sliderPanel.add(s800);
@@ -246,18 +272,27 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		eqPanel.add(sliderPanel);
 	}
 	
-	
+	/**
+	 * The initFilters method intialize all of the Beads filters
+	 * used for manipulating frequencies.
+	 */
 	public void initFilters()
 	{
 		
 		/* Low Pass High pass*/
-		lpf = new OnePoleFilter(ac,0.0f);
-		hpf = new OnePoleFilter(ac,0.0f);
+//		lpf = new OnePoleFilter(ac,0.0f);
+//		hpf = new OnePoleFilter(ac,0.0f);
+		lpf = new BiquadFilter(ac,2,BiquadFilter.LP);
+		hpf = new BiquadFilter(ac,2,BiquadFilter.HP);
+
 		
+		
+		//Instantiate Biquad filters for low and high shelf
 		lowShelf = new BiquadFilter(ac,2,BiquadFilter.LOW_SHELF);
-		lowShelf.setFrequency(120.0f);
+		lowShelf.setFrequency(60.0f).setQ(2).setGain(5.0f);
 		highShelf = new BiquadFilter(ac, 2, BiquadFilter.HIGH_SHELF);
-		highShelf.setFrequency(10000.0f);
+		highShelf.setFrequency(10000.0f).setQ(2).setGain(3.0f);
+		
 		
 		//add the sample player as an input to the filters
 		lpf.addInput(sp);
@@ -265,6 +300,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lowShelf.addInput(sp);
 		highShelf.addInput(sp);
 		
+		//Create Glide objects and Gains for the filters.  Glides make the transition to a gain value
+		//smoother over time, this eliminates pops when you click the button.
 		lpfGlide = new Glide(ac, 0.1f, 20);
 		hpfGlide = new Glide(ac, 0.1f, 20);
 		lpfGain = new Gain(ac, 2, lpfGlide);
@@ -277,16 +314,19 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lowShelfGain = new Gain(ac, 2, lshelfGlide);
 		highShelfGain = new Gain(ac, 2, hshelfGlide);
 		
+		//Add the shelfs as inputs to the Gains
 		lowShelfGain.addInput(lowShelf);
 		highShelfGain.addInput(highShelf);
 		
+		//Add the gain objects as inputs the audio contexts Gain.
 		ac.out.addInput(lowShelfGain);
 		ac.out.addInput(highShelfGain);
 		ac.out.addInput(lpfGain);
 		ac.out.addInput(hpfGain);
 		
 		
-		/* Peak Filters */
+		/******************Peak Filters*************************/
+		//********************250 Hz **********************
 		peakFilter250 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
 		peakFilter250.setFrequency(250.0f);
 		peakFilter250.setQ(1.0f);
@@ -296,7 +336,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		gain250 = new Gain(ac,2,0.0f);
 		gain250.addInput(peakFilter250);
 		
-		//800 Hz ************************
+		//**************************800 Hz ************************
 		peakFilter800 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
 		peakFilter800.setFrequency(800.0f);
 		peakFilter800.setQ(1.0f);
@@ -306,7 +346,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		gain800 = new Gain(ac,2,0.0f);
 		gain800.addInput(peakFilter800);
 		
-		//2.5kHz ********************************
+		//********************2.5kHz ********************************
 		peakFilter25 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
 		peakFilter25.setFrequency(800.0f);
 		peakFilter25.setQ(1.0f);
@@ -316,7 +356,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		gain25 = new Gain(ac,2,0.0f);
 		gain25.addInput(peakFilter25);
 		
-		// 8 kHz ********************************
+		//*************************8 kHz ********************************
 		peakFilter8 = new BiquadFilter(ac, 2, BiquadFilter.PEAKING_EQ);
 		peakFilter8.setFrequency(800.0f);
 		peakFilter8.setQ(1.0f);
@@ -334,7 +374,9 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 
 	}
 	/*
-	 * This fu
+	 * This method resets all of the filters to their default settings
+	 * The method is static so it can be called from the AudioControlPanel
+	 * class without instantiating an instance.
 	 */
 	public static void resetFilters()
 	{
@@ -360,7 +402,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 	
 	
 	/*
-	 *	This method signals eq filters to change when a change in the slider is detected 
+	 *	This method signals EQ filters to change when a change in the slider is detected 
 	 */
 	@Override
 	public void stateChanged(ChangeEvent e) 
@@ -368,8 +410,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 
 			if(e.getSource().equals(s250))
 			{
-					peakFilter250.setGain(s250.getValue());
-					gain250.setGain(s250.getValue() * 0.5f);
+				peakFilter250.setGain(s250.getValue());
+				gain250.setGain(s250.getValue() * 0.5f);
 			}
 			else if(e.getSource().equals(s800)){
 				peakFilter800.setGain(s800.getValue());
@@ -385,22 +427,27 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 			}
 
 	}
+	/**
+	 * This method handles button clicks
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource().equals(lpfButton))
 		{
 		
 			if(lpfOn == 0){
-				System.out.println("armed");
+				//Grab the hertz value from the spinner
 				float frequency = filterFreqLPF.getNumber().floatValue();
+				//Set the low pass filter frequency to the value from the spinner
 				lpf.setFrequency(frequency);
-			
-				lpfGlide.setValue(3.0f);
-			
+				//Increase the gain of the filter
+				lpfGlide.setValue(5.0f);
+				//Set toggle on to 1
 				lpfOn = 1;
 			}
 			else
 			{
+				//Otherwise it's already enabled so disable it by zeroing out everything
 				lpf.setFrequency(0.0f);
 				lpfGlide.setValue(0.0f);
 		
@@ -415,7 +462,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 				System.out.println("armed");
 				float frequency = filterFreqHPF.getNumber().floatValue();
 				hpf.setFrequency(frequency);
-				hpfGlide.setValue(1.0f);
+				hpfGlide.setValue(5.0f);
 				hpfOn = 1;
 			}
 			else
@@ -429,8 +476,6 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		else if(e.getSource().equals(lowShelfButton))
 		{
 			if(lShelfOn == 0){
-				lowShelf.setGain(2.0f);
-				lowShelfGain.setGain(2.0f);
 				lshelfGlide.setValue(2.0f);
 				lShelfOn = 1;
 			}
@@ -443,7 +488,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		else if(e.getSource().equals(highShelfButton))
 		{
 			if(hShelfOn == 0){
-				highShelf.setGain(2.0f);
+
 				hshelfGlide.setValue(2.0f);
 				hShelfOn = 1;
 			}

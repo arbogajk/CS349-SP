@@ -109,6 +109,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		font = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
 		fontVolume = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
 		title = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
+		
 		//Set the layout, bounds and background color of the JPanel
 		setLayout(null);
 		setBounds(0,0, WIDTH, HEIGHT);
@@ -259,10 +260,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		//If the files drop down box has focus, reset all of the audio playback and filters
 		if(files.hasFocus())
 		{
-			ac.stop();
-			sp.reset();
+			resetControls();
 			sp.setSample(sample);
-			EQPanel.resetFilters();
 		}
 	
 		//Playbutton pressed
@@ -313,7 +312,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 				masterGain.setGain(volumeSlider.getValue());	
 				
 			}
-	}
+		}
 	
 	}
 
@@ -350,7 +349,14 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		thread.start();		//Start the thread to update the volume level.
 		
 	}
+	public void resetControls()
+	{
+		ac.stop();
+		sp.reset();
 	
+		EQPanel.resetFilters();
+		volume.setValue(0);
+	}
 	/**
 	 * Getter for the AudioContext
 	 * 

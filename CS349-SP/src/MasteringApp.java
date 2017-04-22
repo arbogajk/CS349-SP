@@ -35,7 +35,7 @@ import visual.statik.sampled.ImageFactory;
 public class MasteringApp extends AbstractMultimediaApp      
 {
 	private JPanel contentPane;
-	
+		
 	public static int MAX_WIDTH = (int)MasteringApplication.getWidth();
 	public static int MAX_HEIGHT = (int)MasteringApplication.getHeight();
 	public static int PANELHEIGHT;
@@ -63,11 +63,11 @@ public class MasteringApp extends AbstractMultimediaApp
     	contentPane.setBounds(0, 0, MAX_WIDTH, MAX_HEIGHT);
     
     	PANELHEIGHT = (int) MAX_HEIGHT /3;
-    	System.out.println(MAX_WIDTH);
+    	
     	AudioControlPanel audioControls = 
     			new AudioControlPanel(MAX_WIDTH, MAX_HEIGHT, PANELHEIGHT);
     	
-        	
+      
        	contentPane.add(audioControls);
 
     	JPanel fvp = 
