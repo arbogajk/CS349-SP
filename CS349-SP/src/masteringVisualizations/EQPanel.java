@@ -293,16 +293,15 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		
 		lpfButton.setMaximumSize(new Dimension(60,30));
 		hpfButton.setMaximumSize(new Dimension(60,30));
-		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX() - 70 ,
+		lpfButton.setBounds((int)lpfSpinner.getBounds().getMinX() - 60 ,
 				(int)lpfSpinner.getBounds().getY(),(int)lpfButton.getMaximumSize().getWidth(),(int)lpfButton.getMaximumSize().getHeight());
-		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - 70,
+		hpfButton.setBounds((int)hpfSpinner.getBounds().getMinX() - 60,
 				(int)hpfSpinner.getBounds().getY(),(int)hpfButton.getMaximumSize().getWidth(),(int)hpfButton.getMaximumSize().getHeight());
 		lpfButton.setFont(labelsFont);
 		hpfButton.setFont(labelsFont);
 		lpfButton.setForeground(jmuPurple);
-		lpfButton.setBackground(jmuGold);
 		hpfButton.setForeground(jmuPurple);
-		hpfButton.setBackground(jmuGold);
+		
 		
 		highShelfButton = new JToggleButton("H-Shelf");
 		highShelfButton.setForeground(jmuPurple);
@@ -581,7 +580,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		if(e.getSource().equals(lpfButton))
 		{
 		
-			if(lpfOn == 0){
+			if(lpfOn == 0)
+			{
 				//Grab the hertz value from the spinner
 				float frequency = filterFreqLPF.getNumber().floatValue();
 				//Set the low pass filter frequency to the value from the spinner

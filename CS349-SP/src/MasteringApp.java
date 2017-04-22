@@ -58,6 +58,16 @@ public class MasteringApp extends AbstractMultimediaApp
      */
     public void init()
     {
+    	
+    		try {
+				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+					| UnsupportedLookAndFeelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+   
+    	
     	contentPane = (JPanel)rootPaneContainer.getContentPane();
     	contentPane.setLayout(null);
     	contentPane.setBounds(0, 0, MAX_WIDTH, MAX_HEIGHT);

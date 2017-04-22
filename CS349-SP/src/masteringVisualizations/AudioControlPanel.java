@@ -161,7 +161,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	pausebutton = new JToggleButton(pause);
     	pausebutton.setBounds(65,(int)files.getBounds().getMaxY() + 100,60,60);
     	pausebutton.addActionListener(this);
-    	playbutton.setBackground(jmuPurple);
+    	
     	
     	stopbutton = new JToggleButton(stop);
     	stopbutton.setBounds(125,(int)files.getBounds().getMaxY() + 100,60,60);
