@@ -290,9 +290,11 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			if(ac != null && !ac.isRunning())
 			{
 				ac.start();			//Start the audio context
-				currVol = volumeSlider.getValue();	//Store the current value of the volume slider
-				prevVol = currVol;		//Make the previous value of the volume slider the previous value
+//				currVol = volumeSlider.getValue();	//Store the current value of the volume slider
+//				prevVol = currVol;		//Make the previous value of the volume slider the previous value
 				updateRMS();			//Start the updateRMS method
+				stopbutton.setSelected(false);
+				pausebutton.setSelected(false);
 			}	
 			
 		}
@@ -300,6 +302,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		else if(e.getSource().equals(pausebutton))
 		{
 			ac.stop();
+			playbutton.setSelected(false);
+			stopbutton.setSelected(false);
 			
 		}
 		//If the stop button is pressed, stop playback and reset the position to the beginning of the audio sample
@@ -309,6 +313,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			sp.reset();
 			ac.reset();
 			volume.setValue(0);
+			playbutton.setSelected(false);
+			pausebutton.setSelected(false);
 		}
 	}
 	
@@ -362,7 +368,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 						volume.setValue((int)value);
 						
 					}
-					
+					//If the rms level is above a certain threshold change the color
+					//to let the user know the signal is too loud
 					if((int)value >= 3000){
 						volume.setForeground(Color.RED);
 					}
@@ -377,13 +384,22 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		thread.start();		//Start the thread to update the volume level.
 		
 	}
+	
+	/**
+	 * The resetControls method is called when the files drop down has focus,
+	 * and handles resetting filters and toggles off the playback buttons.
+	 */
 	public void resetControls()
 	{
 		ac.stop();
 		sp.reset();
 	
 		EQPanel.resetFilters();
+		EQPanel.resetPresets();
 		volume.setValue(0);
+		playbutton.setSelected(false);
+		pausebutton.setSelected(false);
+		stopbutton.setSelected(false);
 	}
 	/**
 	 * Getter for the AudioContext
