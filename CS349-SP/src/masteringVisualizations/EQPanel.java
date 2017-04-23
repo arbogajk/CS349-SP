@@ -476,6 +476,10 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 	 */
 	public static void resetFilters()
 	{
+		lpfGain.setGain(0.0f);
+		hpfGain.setGain(0.0f);
+		lpf.setGain(0.0f);
+		hpf.setGain(0.0f);
 		lpfGlide.setValue(0.0f);
 		hpfGlide.setValue(0.0f);
 		lpfOn = 0;
@@ -561,7 +565,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 			
 			lpfSpinner.setValue(2000);
 			lpfButton.doClick();
-			hpfSpinner.setValue(1000);
+			hpfSpinner.setValue(50);
 			hpfButton.doClick();
 		}
 		//Handle preset for Low end
@@ -633,8 +637,10 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 				//Set the low pass filter frequency to the value from the spinner
 				lpf.setFrequency(frequency);
 				//Increase the gain of the filter
-			
-				lpfGlide.setValue(2.0f);
+				lpfGlide.setValue(1.0f);
+				lpf.setGain(-2.0f);
+				lpfGain.setGain(-2.0f);
+				
 				
 				//Set toggle on to 1
 				lpfOn = 1;
@@ -643,8 +649,10 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 			{
 				//Otherwise it's already enabled so disable it by zeroing out everything
 				lpf.setFrequency(0.0f);
+				lpfGain.setGain(0.0f);
+				lpf.setGain(0.0f);
 				lpfGlide.setValue(0.0f);
-		
+				
 				lpfOn = 0;
 			}
 
@@ -656,14 +664,19 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 			
 				float frequency = filterFreqHPF.getNumber().floatValue();
 				hpf.setFrequency(frequency);
-			
-				hpfGlide.setValue(2.0f);
+				hpfGlide.setValue(1.0f);
+				hpf.setGain(-2.0f);
+				hpfGain.setGain(-2.0f);
+				
 				hpfOn = 1;
 			}
 			else
 			{
 				hpf.setFrequency(0.0f);
+				
 				hpfGlide.setValue(0.0f);
+				hpf.setGain(0.0f);
+				hpfGain.setGain(0.0f);
 			
 				hpfOn = 0;
 			}
