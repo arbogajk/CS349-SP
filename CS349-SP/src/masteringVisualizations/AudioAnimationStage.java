@@ -129,7 +129,7 @@ public class AudioAnimationStage extends Stage
 		path.lineTo(x1 + width, y2);
 		path.closePath();
 		
-		return new Content(path, Color.CYAN, Color.CYAN, null);
+		return new Content(path, Color.YELLOW, Color.YELLOW, null);
 	}
   
   /**
