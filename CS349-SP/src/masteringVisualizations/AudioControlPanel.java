@@ -12,13 +12,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
 
-
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Control;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer.Info;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonModel;
@@ -36,9 +37,13 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.jaudiolibs.audioservers.javasound.JavasoundAudioServer;
+import org.jaudiolibs.beads.AudioServerIO;
 
 import visual.statik.sampled.ImageFactory;
 import io.ResourceFinder;
@@ -109,6 +114,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		font = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
 		fontVolume = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
 		title = new Font("Times New Roman",Font.BOLD,(int)(WIDTH * 0.03));
+		
 		//Set the layout, bounds and background color of the JPanel
 		setLayout(null);
 		setBounds(0,0, WIDTH, HEIGHT);
@@ -126,11 +132,13 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	Icon stop = new ImageIcon(stopIcon.getScaledInstance((int)(WIDTH * 0.085), (int)(WIDTH * 0.085), 0));
     	
     	//Construct the RMS level meter (JProgressBar)
-    	volume = new JProgressBar(JProgressBar.VERTICAL,0,2000);
+    	volume = new JProgressBar(JProgressBar.VERTICAL,0,3000);
     	volume.setValue(0);
     	volume.setBounds((int)(this.getBounds().getMaxX() - (int)WIDTH*0.1) - 10, 5, (int)(WIDTH * 0.1),
     			(int)this.getBounds().getHeight() - 25);
-    	
+    	volume.setStringPainted(true);
+    	volume.setForeground(jmuGold);
+    	volume.setString("");
     	//Create a slider for the volume control
     	volumeSlider = new JSlider(JSlider.VERTICAL,0,10,5);
     	volumeSlider.addChangeListener(this);
@@ -157,7 +165,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	pausebutton = new JToggleButton(pause);
     	pausebutton.setBounds(65,(int)files.getBounds().getMaxY() + 100,60,60);
     	pausebutton.addActionListener(this);
-    	playbutton.setBackground(jmuPurple);
+    	
     	
     	stopbutton = new JToggleButton(stop);
     	stopbutton.setBounds(125,(int)files.getBounds().getMaxY() + 100,60,60);
@@ -165,10 +173,17 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	
     	//Create a label for the volume control
     	JLabel volumeLabel = new JLabel("Volume",SwingConstants.CENTER);
+    	JLabel rmsLabel = new JLabel("RMS",SwingConstants.CENTER);
     	volumeLabel.setFont(font);
     	volumeLabel.setForeground(jmuGold);
-    	volumeLabel.setBounds((int)volumeSlider.getBounds().getMaxX() - 80,
-    			(int)volumeSlider.getBounds().getMaxY() ,(int)(WIDTH * 0.1),20);
+    	volumeLabel.setBounds((int)(volumeSlider.getBounds().getCenterX() - volumeLabel.getWidth()/2) - 25,
+    			volumeSlider.getHeight() + 3 ,(int)(WIDTH * 0.1),20);
+    	
+    	rmsLabel.setFont(font);
+    	rmsLabel.setForeground(jmuGold);
+    	rmsLabel.setBounds((int)(volume.getBounds().getCenterX() - volume.getWidth()/2), 
+    			volume.getHeight() + 3,(int)(WIDTH * 0.1), 20);
+    	
     	
     	//Initialize the sample player
     	samplePlayerInit();
@@ -176,6 +191,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
     	//Add all the components to the JPanel
     	add(volumeSlider);
     	add(volumeLabel);
+    	add(rmsLabel);
     	add(files);
     	add(volume);
     	add(playbutton);
@@ -198,13 +214,15 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			sample = new Sample(sourceStream);		//Create a sample from the inputstream
 		
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
+	
 			System.out.println("could not find " + audioFile );
 			e1.printStackTrace();
 		} catch (UnsupportedAudioFileException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
+		
+		
 		ac = new AudioContext();				//Construct an AudioContext object
 		sp = new SamplePlayer(ac, sample);		//Create a sampleplayer from the audio context and the sample as input
 		
@@ -213,7 +231,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	
 		masterGain.addInput(sp);				//Chain the sample player to the input of the master gain
 		ac.out.addInput(masterGain);			//Add the gain object as an input to the gain of the audio context
-		ac.out.setGain(0.08f);					//Set the initial gain of the audio context.
+		ac.out.setGain(0.06f);					//Set the initial gain of the audio context.
 		masterGain.setGain(volumeSlider.getValue() );		//set mastergain by getting the value from the slider
 	    sp.setKillOnEnd(false);					//Do not kill the sample after playback gets to end of the sample
 	    
@@ -227,10 +245,10 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	 * @return  JComboBox The combo box of the audio files list
 	 */
 	public JComboBox<String> buildDropDown(){
-		String audioFiles[] ={"VeilofShadows.wav","GeneralGrevious.wav", 
-				"underminers-drumloop.wav","VeilofShadows-Outro.wav"};
+		String audioFiles[] ={"veilofshadows.au","generalgrevious.au", 
+				"underminers-drumloop.au","veilofshadows-outro.au"};
 
-		JComboBox<String> fileSelect = new JComboBox<>(audioFiles);
+		JComboBox<String> fileSelect = new JComboBox<String>(audioFiles);
 		fileSelect.addActionListener(this);
 		return fileSelect;
 	
@@ -251,18 +269,18 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		Sample sample = null;
 		try {
 			sample = new Sample(sourceStream);		//Create a sample from the audio file
-		} catch (IOException | UnsupportedAudioFileException e1) {
+		} catch (IOException e1){
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		}catch (UnsupportedAudioFileException e2) {
+			e2.printStackTrace();
 		}
 		
 		//If the files drop down box has focus, reset all of the audio playback and filters
 		if(files.hasFocus())
 		{
-			ac.stop();
-			sp.reset();
+			resetControls();
 			sp.setSample(sample);
-			EQPanel.resetFilters();
 		}
 	
 		//Playbutton pressed
@@ -272,9 +290,11 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			if(ac != null && !ac.isRunning())
 			{
 				ac.start();			//Start the audio context
-				currVol = volumeSlider.getValue();	//Store the current value of the volume slider
-				prevVol = currVol;		//Make the previous value of the volume slider the previous value
+//				currVol = volumeSlider.getValue();	//Store the current value of the volume slider
+//				prevVol = currVol;		//Make the previous value of the volume slider the previous value
 				updateRMS();			//Start the updateRMS method
+				stopbutton.setSelected(false);
+				pausebutton.setSelected(false);
 			}	
 			
 		}
@@ -282,6 +302,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		else if(e.getSource().equals(pausebutton))
 		{
 			ac.stop();
+			playbutton.setSelected(false);
+			stopbutton.setSelected(false);
 			
 		}
 		//If the stop button is pressed, stop playback and reset the position to the beginning of the audio sample
@@ -290,6 +312,9 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			ac.stop();
 			sp.reset();
 			ac.reset();
+			volume.setValue(0);
+			playbutton.setSelected(false);
+			pausebutton.setSelected(false);
 		}
 	}
 	
@@ -313,7 +338,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 				masterGain.setGain(volumeSlider.getValue());	
 				
 			}
-	}
+		}
 	
 	}
 
@@ -341,6 +366,15 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 					//Update the volume progress bar with the rms value (synchronized access to it)
 					synchronized(this){
 						volume.setValue((int)value);
+						
+					}
+					//If the rms level is above a certain threshold change the color
+					//to let the user know the signal is too loud
+					if((int)value >= 3000){
+						volume.setForeground(Color.RED);
+					}
+					else{
+						volume.setForeground(jmuGold);
 					}
 					
 				}
@@ -351,6 +385,22 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 		
 	}
 	
+	/**
+	 * The resetControls method is called when the files drop down has focus,
+	 * and handles resetting filters and toggles off the playback buttons.
+	 */
+	public void resetControls()
+	{
+		ac.stop();
+		sp.reset();
+	
+		EQPanel.resetFilters();
+		EQPanel.resetPresets();
+		volume.setValue(0);
+		playbutton.setSelected(false);
+		pausebutton.setSelected(false);
+		stopbutton.setSelected(false);
+	}
 	/**
 	 * Getter for the AudioContext
 	 * 
