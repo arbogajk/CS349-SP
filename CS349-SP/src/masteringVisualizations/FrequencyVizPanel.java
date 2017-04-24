@@ -41,7 +41,7 @@ public class FrequencyVizPanel extends JPanel implements ActionListener
   	stage.start();
   	
   	// Create the combo box to select the animation
-  	String[] animations = {"Spectrum", "Droplets", "Stalactite", "Heartbeat"};
+  	String[] animations = {"Spectrum", "Stalactite", "Heartbeat"};
   	cbox = new JComboBox<String>(animations);
   	cbox.addActionListener(this);
   	cbox.setBounds(5, height - 20, 125, 20);

@@ -51,18 +51,10 @@ public class AudioAnimationStage extends Stage
 		bg = new Content(createBackground(), null, Color.BLACK, null);
 		add(bg);
 		
-		
 		this.ac = ac;
-		
-		// set up a master gain object
-		//Gain g = new Gain(ac, 2, 0.3f);
-		//ac.out.addInput(g);
-		//SamplePlayer sp = AudioControlPanel.getSP();
-		//g.addInput(sp);
 		
 		ShortFrameSegmenter sfs = new ShortFrameSegmenter(ac);
 		sfs.addInput(ac.out);
-		System.out.println("HOP: " + sfs.getChunkSize());
 		sfs.setChunkSize(2048);
 		FFT fft = new FFT();
 		sfs.addListener(fft);
@@ -81,20 +73,20 @@ public class AudioAnimationStage extends Stage
 		clear();
 		add(bg);
 		
-		switch (animationType) 
+		if (ac.isRunning()) 
 		{
-			case 0:
-				drawSpectrum();
-				break;
-			case 1:
-				drawDroplets();
-				break;
-			case 2:
-				drawStalactite();
-				break;
-			case 3:
-				drawHeartbeat();
-				break;
+			switch (animationType) 
+			{
+				case 0:
+					drawSpectrum();
+					break;
+				case 1:
+					drawStalactite();
+					break;
+				case 2:
+					drawHeartbeat();
+					break;
+			}
 		}
 	}
   
@@ -121,16 +113,16 @@ public class AudioAnimationStage extends Stage
   	return new Content(path, null, p, null);
   }
   
-  private Content createLineSegment(double x1, double y1, double x2, 
-  																	double y2, int width)
-	{
-		Path2D.Float path = new Path2D.Float();
-		path.moveTo(x1, y2);
-		path.lineTo(x1 + width, y2);
-		path.closePath();
-		
-		return new Content(path, Color.YELLOW, Color.YELLOW, null);
-	}
+//  private Content createLineSegment(double x1, double y1, double x2, 
+//  																	double y2, int width)
+//	{
+//		Path2D.Float path = new Path2D.Float();
+//		path.moveTo(x1, y2);
+//		path.lineTo(x1 + width, y2);
+//		path.closePath();
+//		
+//		return new Content(path, Color.YELLOW, Color.YELLOW, null);
+//	}
   
   /**
    * Routine to draw the features
@@ -187,37 +179,37 @@ public class AudioAnimationStage extends Stage
  
   }
   
-  private void drawDroplets()
-  {
-  	// Get the features
-  	float[] features = ps.getFeatures();
-  	
-  	if (features != null)
-  	{
-    	// Draw the bars
-  		//int barWidth = VIEW_WIDTH / features.length;
-  		int barWidth = 1;
-  		barWidth = features.length / VIEW_WIDTH;
-  		System.out.println("LENGTH: " + features.length);
-  		int leftSide = 0;
-  		for(int x = 0; x < VIEW_WIDTH; x++)
-  		{
-  			// figure out which featureIndex corresponds to this x-
-  			// position
-  			int featureIndex = (x * features.length) / VIEW_WIDTH;
-  			
-  			// calculate the bar height for this feature
-  			int barHeight = Math.min((int)(features[featureIndex] *
-  					VIEW_HEIGHT), VIEW_HEIGHT - 5);
-  			
-  			// draw a vertical line corresponding to the frequency
-  			// represented by this x-position
-  			add(createLineSegment(leftSide, VIEW_HEIGHT, leftSide, 
-  														VIEW_HEIGHT - barHeight, barWidth));
-  			leftSide += barWidth;
-  		}
-  	}
-  }
+//  private void drawDroplets()
+//  {
+//  	// Get the features
+//  	float[] features = ps.getFeatures();
+//  	
+//  	if (features != null)
+//  	{
+//    	// Draw the bars
+//  		//int barWidth = VIEW_WIDTH / features.length;
+//  		int barWidth = 1;
+//  		barWidth = features.length / VIEW_WIDTH;
+//  		System.out.println("LENGTH: " + features.length);
+//  		int leftSide = 0;
+//  		for(int x = 0; x < VIEW_WIDTH; x++)
+//  		{
+//  			// figure out which featureIndex corresponds to this x-
+//  			// position
+//  			int featureIndex = (x * features.length) / VIEW_WIDTH;
+//  			
+//  			// calculate the bar height for this feature
+//  			int barHeight = Math.min((int)(features[featureIndex] *
+//  					VIEW_HEIGHT), VIEW_HEIGHT - 5);
+//  			
+//  			// draw a vertical line corresponding to the frequency
+//  			// represented by this x-position
+//  			add(createLineSegment(leftSide, VIEW_HEIGHT, leftSide, 
+//  														VIEW_HEIGHT - barHeight, barWidth));
+//  			leftSide += barWidth;
+//  		}
+//  	}
+//  }
   
   /**
    * Draws the upside-down spectrum animation
@@ -285,36 +277,20 @@ public class AudioAnimationStage extends Stage
   			// draw a vertical line corresponding to the frequency
   			// represented by this x-position
   			Line2D.Float l;
-  			if (barHeight > (VIEW_HEIGHT/2))
+  			if (x == 0)
   			{
-  				if (x == 0)
-    			{
-    				l = new Line2D.Float(leftSide, barHeight - VIEW_HEIGHT, 
-    						leftSide+1, barHeight - VIEW_HEIGHT);
-    			}
-    			else
-    			{
-    				l = new Line2D.Float(prevX, prevY, leftSide, barHeight - VIEW_HEIGHT);
-    				//l = new Line2D.Float(0, VIEW_HEIGHT/2, VIEW_WIDTH, VIEW_HEIGHT/2);
-    			}
-  				prevY = barHeight - VIEW_HEIGHT;
+  				l = new Line2D.Float(leftSide, VIEW_HEIGHT/2 - barHeight/2, 
+  						leftSide+1, VIEW_HEIGHT/2 - barHeight/2);
   			}
   			else
   			{
-	  			if (x == 0)
-	  			{
-	  				l = new Line2D.Float(leftSide, VIEW_HEIGHT/2 - barHeight, 
-	  						leftSide+1, VIEW_HEIGHT/2 - barHeight);
-	  			}
-	  			else
-	  			{
-	  				l = new Line2D.Float(prevX, prevY, leftSide, VIEW_HEIGHT/2 - barHeight);
-	  				//l = new Line2D.Float(0, VIEW_HEIGHT/2, VIEW_WIDTH, VIEW_HEIGHT/2);
-	  			}
-	  			prevY = VIEW_HEIGHT/2 - barHeight;
+  				l = new Line2D.Float(prevX, prevY, leftSide, VIEW_HEIGHT/2 - barHeight/2);
+  				//l = new Line2D.Float(0, VIEW_HEIGHT/2, VIEW_WIDTH, VIEW_HEIGHT/2);
   			}
+  			prevY = VIEW_HEIGHT/2 - barHeight/2;
+  			
 				add(new Content(l, Color.GREEN, null, null));
-				//System.out.printf("PrevX: %d, PrevY: %d\n", prevX, prevY);
+				
 				prevX = leftSide;
   			leftSide += barWidth;
   		}
