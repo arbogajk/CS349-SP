@@ -412,12 +412,14 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		lowShelfGain.addInput(lowShelf);
 		highShelfGain.addInput(highShelf);
 		
+	
 		//Add the gain objects as inputs the audio contexts Gain.
 		ac.out.addInput(lowShelfGain);
 		ac.out.addInput(highShelfGain);
 		ac.out.addInput(lpfGain);
 		ac.out.addInput(hpfGain);
 		
+	
 		
 		/******************Peak Filters*************************/
 		
@@ -476,10 +478,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 	 */
 	public static void resetFilters()
 	{
-		lpfGain.setGain(0.0f);
-		hpfGain.setGain(0.0f);
-		lpf.setGain(0.0f);
-		hpf.setGain(0.0f);
+		
 		lpfGlide.setValue(0.0f);
 		hpfGlide.setValue(0.0f);
 		lpfOn = 0;
@@ -605,19 +604,19 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 			if(e.getSource().equals(s250))
 			{
 				peakFilter250.setGain(s250.getValue());
-				gain250.setGain(s250.getValue() * 0.3f);
+				gain250.setGain(s250.getValue() * 0.4f);
 			}
 			else if(e.getSource().equals(s800)){
 				peakFilter800.setGain(s800.getValue());
-				gain800.setGain(s800.getValue() * 0.3f);
+				gain800.setGain(s800.getValue() * 0.4f);
 			}
 			else if(e.getSource().equals(s25)){
 				peakFilter25.setGain(s25.getValue() );
-				gain25.setGain(s25.getValue() * 0.3f);
+				gain25.setGain(s25.getValue() * 0.4f);
 			}
 			else if(e.getSource().equals(s8)){
 				peakFilter8.setGain(s8.getValue());
-				gain8.setGain(s8.getValue() * 0.3f);
+				gain8.setGain(s8.getValue() * 0.4f);
 			}
 
 	}
@@ -637,9 +636,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 				//Set the low pass filter frequency to the value from the spinner
 				lpf.setFrequency(frequency);
 				//Increase the gain of the filter
-				lpfGlide.setValue(1.0f);
-				lpf.setGain(-2.0f);
-				lpfGain.setGain(-2.0f);
+				lpfGlide.setValue(5.0f);
+			
 				
 				
 				//Set toggle on to 1
@@ -649,8 +647,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 			{
 				//Otherwise it's already enabled so disable it by zeroing out everything
 				lpf.setFrequency(0.0f);
-				lpfGain.setGain(0.0f);
-				lpf.setGain(0.0f);
+				
 				lpfGlide.setValue(0.0f);
 				
 				lpfOn = 0;
@@ -664,9 +661,9 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 			
 				float frequency = filterFreqHPF.getNumber().floatValue();
 				hpf.setFrequency(frequency);
-				hpfGlide.setValue(1.0f);
-				hpf.setGain(-2.0f);
-				hpfGain.setGain(-2.0f);
+				hpfGlide.setValue(5.0f);
+				
+			
 				
 				hpfOn = 1;
 			}
@@ -675,8 +672,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 				hpf.setFrequency(0.0f);
 				
 				hpfGlide.setValue(0.0f);
-				hpf.setGain(0.0f);
-				hpfGain.setGain(0.0f);
+			
+			
 			
 				hpfOn = 0;
 			}
@@ -684,7 +681,7 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		else if(e.getSource().equals(lowShelfButton))
 		{
 			if(lShelfOn == 0){
-				lshelfGlide.setValue(2.0f);
+				lshelfGlide.setValue(5.0f);
 				lShelfOn = 1;
 			}
 			else{
@@ -696,8 +693,9 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		else if(e.getSource().equals(highShelfButton))
 		{
 			if(hShelfOn == 0){
-
+				
 				hshelfGlide.setValue(2.0f);
+				highShelf.setGain(5.0f);
 				hShelfOn = 1;
 			}
 			else{				
