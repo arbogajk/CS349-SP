@@ -98,6 +98,8 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	private final int HEIGHT;				//Height dimension of the panel
 	private final int MAX_HEIGHT;
 	
+	private Thread thread;
+	
 	/**
 	 * This constructor creates the audio control panel and adds the components to it.
 	 * @param width		JPanel width
@@ -315,6 +317,16 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 			volume.setValue(0);
 			playbutton.setSelected(false);
 			pausebutton.setSelected(false);
+			
+			//Join the thread back up
+			try {
+				thread.join();
+				volume.setValue(0);
+			
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 	}
 	
@@ -351,37 +363,39 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	public void updateRMS()
 	{
 			//Construct a thread
-		 	Thread thread = new Thread(){
-		 	/**
-		 	 * The run method executes the RMS audio signal update
-		 	 * in a separate thread.
-		 	 */
-			public void run()
-			{
-				//Loop while the audio context is running
-				while(getAC().isRunning())
+		 	thread = new Thread(){
+			 	/**
+			 	 * The run method executes the RMS audio signal update
+			 	 * in a separate thread.
+			 	 */
+				public void run()
 				{
-					//Get the value of the rms and scale the float by 10000
-					float value = rms.getValue() * 10000;
-					//Update the volume progress bar with the rms value (synchronized access to it)
-					synchronized(this){
-						volume.setValue((int)value);
+					//Loop while the audio context is running
+					while(getAC().isRunning())
+					{
+						//Get the value of the rms and scale the float by 10000
+						float value = rms.getValue() * 10000;
+						//Update the volume progress bar with the rms value (synchronized access to it)
+						synchronized(this){
+							volume.setValue((int)value);
+							
+						}
+						//If the rms level is above a certain threshold change the color
+						//to let the user know the signal is too loud
+						if((int)value >= 3000){
+							volume.setForeground(Color.RED);
+						}
+						else{
+							volume.setForeground(jmuGold);
+						}
 						
-					}
-					//If the rms level is above a certain threshold change the color
-					//to let the user know the signal is too loud
-					if((int)value >= 3000){
-						volume.setForeground(Color.RED);
-					}
-					else{
-						volume.setForeground(jmuGold);
 					}
 					
 				}
-				
-			}
+			
 		};
 		thread.start();		//Start the thread to update the volume level.
+		
 		
 	}
 	
