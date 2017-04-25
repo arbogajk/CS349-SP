@@ -245,7 +245,7 @@ public class AudioControlPanel extends JPanel implements ActionListener,ChangeLi
 	 * @return  JComboBox The combo box of the audio files list
 	 */
 	public JComboBox<String> buildDropDown(){
-		String audioFiles[] ={"veilofshadows.au","generalgrevious.au", 
+		String audioFiles[] ={"veilofshadows.au","orchpiece_2.au", 
 				"underminers-drumloop.au","veilofshadows-outro.au"};
 
 		JComboBox<String> fileSelect = new JComboBox<String>(audioFiles);
