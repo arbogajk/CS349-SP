@@ -394,8 +394,8 @@ public class EQPanel extends JPanel implements ActionListener, ChangeListener {
 		
 		//Create Glide objects and Gains for the filters.  Glides make the transition to a gain value
 		//smoother over time, this eliminates pops when you click the button.
-		lpfGlide = new Glide(ac, 0.1f, 50);
-		hpfGlide = new Glide(ac, 0.1f, 50);
+		lpfGlide = new Glide(ac, 0.1f, 5);
+		hpfGlide = new Glide(ac, 0.1f, 5);
 		lpfGain = new Gain(ac, 2, lpfGlide);
 		hpfGain = new Gain(ac, 2, hpfGlide);
 		//Add the low/high pass filters as inputs to the Glides
